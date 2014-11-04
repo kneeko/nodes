@@ -1,7 +1,7 @@
 ViewportController = class{
 	init = function(self, v, step, scale, interaxial)
 
-		local identifier = (os.time()) .. '-' .. math.floor(math.random() * 1000)
+		local identifier = (os.time()) .. '-' .. math.floor(math.random() * 100000000)
 		self._identifier = identifier
 
 		print('Created a viewport with id: ' .. identifier)
@@ -21,8 +21,8 @@ ViewportController = class{
 		-- v is the number of viewports, i would be better off now having this as locked in stone...
 		self.camera = Camera(v)
 		self.canvas = lg.newCanvas(w, h)
-
 		self.timer = 0
+
 	end,
 
 	update = function(self, dt)
@@ -57,12 +57,13 @@ ViewportController = class{
 		local bound = self.bound
 		local camera = self.camera
 		local canvas = self.canvas
+		local identifier = self._identifier
 
 		lg.setCanvas(canvas)
 		canvas:clear()
 		
 		camera:attach()
-		scene:draw(position, bound)
+		scene:draw(identifier, position, bound)
 		camera:detach()
 
 		local x, y, z = unpack(position)
@@ -74,6 +75,7 @@ ViewportController = class{
 
 		lg.setColor(255, 255, 255)
 		lg.setBlendMode('premultiplied')
+
 		local step = self.step
 		lg.draw(canvas, step)
 		lg.setBlendMode('alpha')

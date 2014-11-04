@@ -5,34 +5,35 @@ ObjectRenderer = class{
 		self.queue = {}
 	end,
 
-	update = function(self)
-		
-
-	end,
-
-	prepare = function(self, identifier, camera, viewport)
+	prepare = function(self, identifier, camera, bound)
 		-- project all the objects here
 		-- determine if they will be culled
 		-- supporting multiple viewports here becomes pretty tedious
 		-- cameras should have a unique identifier
 
 		local queue = self.queue
-		queue[identifier] = queue[identifier] or {}
+		queue[identifier] = {}
 
 		local objects = self.objects
 		local sorter = self.sorter
 		local stack = sorter:get() or {}
 
 		-- get all the viewports here and then do this in a for loop
-
 		local cx, cy, cz = unpack(camera)
-		local vl, vr, vt, vb = unpack(viewport)
+		local vl, vr, vt, vb = unpack(bound)
 
-		-- transform the viewport bound to worldspace using camera position
+		-- transform the bound to worldspace using camera position
 		local cl = vl + cx
 		local cr = vr + cx
 		local ct = vt + cy
 		local cb = vb + cy
+
+		-- trim the queue if this new one is shorter
+		if #queue[identifier] > #stack then
+			for i = #stack + 1, #queue[identifier] do
+				--queue[identifier][i] = nil
+			end
+		end
 
 		-- get each camera and viewport here instead
 		for i, key in ipairs(stack) do
@@ -40,8 +41,7 @@ ObjectRenderer = class{
 			if object then
 				local visible, projection
 				if object.visible then
-					-- use identifier to seperate the different projections
-					object:project(identifier, camera, viewport)
+					object:project(identifier, camera, bound)
 					local projection = object.projections[identifier]
 					local edges = object.bound.edges
 					local l, r, t, b = unpack(edges)
@@ -53,22 +53,40 @@ ObjectRenderer = class{
 					visible = (not culled) and not (z < 0)
 				end
 				if visible then
-					queue[identifier][i] = key
+					--queue[identifier][i] = key
+					table.insert(queue[identifier], key)
 				end
 			end
 		end
+		--self.queue[identifier] = queue[identifier]
+
+	end,
+
+	flush = function(self, identifier)
+		local queue = self.queue
+		queue[identifier] = nil
 	end,
 	
-	draw = function(self)
+	draw = function(self, identifier, camera, bound)
+	
 		local objects = self.objects
 		local queue = self.queue
-		for identifier,keys in pairs(queue) do
-			for _,key in ipairs(keys) do
-				local object = objects[key]
-				local projection = object.projections[identifier]
-				object:draw(object:context(projection))
-				object:debug(projection)
-			end
+		local count = 0
+		local keys = queue[identifier] or {}
+		for _,key in ipairs(keys) do
+			local object = objects[key]
+			local projection = object.projections[identifier]
+			object:draw(object:context(projection))
+			object:debug(projection)
+			count = count + 1
 		end
+
+		local x, y, z = unpack(camera)
+		local l, r, t, b = unpack(bound)
+		lg.setColor(255, 255, 255, 100)
+		lg.rectangle('line', x - 1, y - 1, r - l + 2, b - t + 2)
+
+		lg.print(count, 15, 60)
+
 	end,
 }

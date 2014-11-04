@@ -30,7 +30,7 @@ Entity = class{
 		local cx, cy, cz = unpack(camera)
 		local projection = {x, y, z}
 
-		-- the value that is added basically moves the camera forward...
+		-- changes the relationship between really far and really close objects
 		--local reciprocal = math.log(1 / z) + 1
 		local reciprocal = 1 / z
 
@@ -61,6 +61,8 @@ Entity = class{
 			projection[1] = cx + x + px + ox
 			projection[2] = cy + x + py + oy
 		end
+
+		-- perhaps lets this decide if it is culled?
 
 		projections[identifier] = projection
 		self.projections = projections
@@ -204,11 +206,11 @@ Entity = class{
 
 			lg.setColor(255, 0, 255)
 			-- draw the collision modes
+			lg.setColor(255, 255, 255)
 			--lg.rectangle('line', x + edges[1], y + edges[3], w, h)
 			--lg.polygon('line', unpack(points))
 			--lg.circle('line', x + circle[1], y + circle[2], circle[3])
 
-			lg.setColor(255, 255, 255)
 			if self.type then
 				lg.print(tostring(self.type), x + 10, y - 7)
 			end

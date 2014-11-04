@@ -1,5 +1,8 @@
 ViewportManager = class{
-	init = function(self, n)
+	init = function(self, scene, n)
+
+		self.scene = scene
+
 		local viewports = {}
 		local v = n or 1
 		local interaxial = -100
@@ -69,11 +72,19 @@ ViewportManager = class{
 	end,
 
 	set = function(self, n)
-		self:init(n)
+		-- we need to clean up when this happens
+		local scene = self.scene
+		local viewports = self.viewports
+		for i = 1, #viewports do
+			local viewport = viewports[i]
+			local identifier = viewport._identifier
+			scene:flush(identifier)
+		end
+		self:init(scene, n)
 	end,
 
 	resize = function(self)
-		self:init(self.n)
+		--self:init(self.n)
 	end,
 
 	project = function(self, x, y)

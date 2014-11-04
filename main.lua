@@ -10,8 +10,7 @@ function love.load()
 
 	lg.setBackgroundColor(7, 54, 66)
 	manager = ObjectManager()
-	viewport = ViewportManager()
-	viewport.scene = manager
+	viewport = ViewportManager(manager)
 
 	--Grid()
 	Field()

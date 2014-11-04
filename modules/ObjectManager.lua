@@ -34,8 +34,6 @@ ObjectManager = class{
 			end
 		end
 
-		--renderer:prepare(camera, viewport)
-
 	end,
 
 	prepare = function(self, identifier, camera, viewport)
@@ -45,17 +43,26 @@ ObjectManager = class{
 
 	end,
 
-	draw = function(self, camera, viewport)
-	
+	flush = function(self, identifier)
+		-- invalidate projection caches for a specific identifier
+		local objects = self.objects
+		local heap = self:get()
+		for i = 1, #heap do
+			local key = heap[i]
+			local object = objects[key]
+			object.projections[identifier] = nil
+		end
 		local renderer = self.renderer
-		renderer:draw(camera, viewport)
+		renderer:flush(identifier)
 
-		-- draw the viewport bound in worldspace
-		local x, y, z = unpack(camera)
-		local l, r, t, b = unpack(viewport)
-		lg.setColor(255, 255, 255, 100)
-		lg.rectangle('line', x - 1, y - 1, r - l + 2, b - t + 2)
+		print('Flushed cached projections and draw queues for viewport with id: ' .. identifier)
 
+	end,
+
+	-- called by the viewport manager
+	draw = function(self, identifier, camera, bound)
+		local renderer = self.renderer
+		renderer:draw(identifier, camera, bound)
 	end,
 
 	callback = function(self, method, ...)
