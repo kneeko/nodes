@@ -4,6 +4,7 @@ Entity = class{
 		self._key = key
 		self._timestamp = os.time()
 		self._context = context
+		self._queued = false
 
 		self.active = true
 		self.visible = true
@@ -18,6 +19,7 @@ Entity = class{
 		self.origin = {0, 0}
 		self.shear = {0, 0}
 		self.threshold = {1, 1}
+		self.projections = {}
 
 	end,
 
@@ -41,7 +43,12 @@ Entity = class{
 			local ox, oy, oz = 0, 0, 0
 			local parent = self.parent
 			if parent then
-				ox, oy, oz = unpack(parent:project(camera, viewport))
+				local parent_projection = parent.projections[identifier]
+				if not parent_projection then
+					parent:project(identifier, camera, viewport)
+					parent_projection = parent.projections[identifier]
+				end
+				ox, oy, oz = unpack(parent_projection)
 			end
 			projection[1] = ox + x + cx - cx * reciprocal
 			projection[2] = oy + y + cy - cy * reciprocal
@@ -70,6 +77,8 @@ Entity = class{
 	end,
 
 	context = function(self, projection)
+
+		-- this isn't a very good solution since it is not very clear what is being passed around
 
 		local angle = self.angle
 		local scale = self.scale
@@ -204,19 +213,17 @@ Entity = class{
 			-- this is a hilariously way of doing this
 			local points = map(function(i,v) return v + projection[((i % 2) + 1) % 2 + 1] end, polygon)
 
-			lg.setColor(255, 0, 255)
 			-- draw the collision modes
 			lg.setColor(255, 255, 255)
 			--lg.rectangle('line', x + edges[1], y + edges[3], w, h)
 			--lg.polygon('line', unpack(points))
 			--lg.circle('line', x + circle[1], y + circle[2], circle[3])
-
-			if self.type then
-				lg.print(tostring(self.type), x + 10, y - 7)
-			end
+			--lg.print(tostring(self.type), x + 10, y - 7)
 
 			-- draw origin
+			lg.setColor(255, 255, 255, 155)
 			lg.circle('line', x, y, 6)
+
 		end
 	end,
 

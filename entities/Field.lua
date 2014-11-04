@@ -18,9 +18,9 @@ Field = class{
 
 		-- parameters for the grid of triangles that will be made
 		-- step is the distance between each column, but not row
-		local step = 220
-		local rows = 3 
-		local cols = 4
+		local step = 90
+		local rows = 5
+		local cols = 5
 		local convex = true
 
 		-- we only need to calculate these once
@@ -45,8 +45,8 @@ Field = class{
 				local stagger = (r % 2 == 0) and (step * cos) or (0)
 
 				-- determine the position
-				local nx = x + stagger + (step) * c
-				local ny = y + (step * sin) * r
+				local nx = stagger + (step) * c
+				local ny = (step * sin) * r
 
 				-- make the node
 				local node = Node(nx, ny)
@@ -128,6 +128,11 @@ Field = class{
 						local tile = Tile(nodes)
 						tiles[#tiles + 1] = tile
 
+						-- temp coloring
+						if math.random() > 0.7 then
+							tile.claimed = true
+						end
+
 						table.insert(left.tiles, tile)
 						table.insert(right.tiles, tile)
 						table.insert(node.tiles, tile)
@@ -139,9 +144,40 @@ Field = class{
 			end
 		end
 
-		print(#tiles .. ' tiles, ' .. rows .. ' rows by ' .. cols .. ' cols')
+		-- iterate through tiles to find tile neighbors
+		for _,tile in ipairs(tiles) do
+			local nodes = tile.nodes
+			local neighbors = {}
+			local occurences = {}
+			for _,node in ipairs(nodes) do
+				for _,neighbor in ipairs(node.tiles) do
+					local key = neighbor._key
+					occurences[key] = occurences[key] and (occurences[key] + 1) or 1
+					if occurences[key] >= 2 and (not neighbors[key]) then
+						neighbors[key] = neighbor
+					end
+				end
+			end
 
-		-- generate tiles now that the neighbors are known
+			local pool = {}
+			for _,neighbor in pairs(neighbors) do
+				if neighbor ~= tile then
+					pool[#pool + 1] = neighbor
+				end
+			end
+
+			tile.neighbors = pool
+
+			-- temp marker
+			if math.random() > 0.99 then
+				for _,neighbor in ipairs(pool) do
+					neighbor.marked = true
+				end
+			end
+
+		end
+
+		print(#tiles .. ' tiles, ' .. rows .. ' rows by ' .. cols .. ' cols')
 
 		getManager():register(self)
 	end,
@@ -156,7 +192,5 @@ Field = class{
 		local ox, oy = unpack(origin)
 		local kx, ky = unpack(shear)
 		local graphic = self.graphic
-
-
 	end,
 }

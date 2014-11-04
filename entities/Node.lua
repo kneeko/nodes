@@ -22,7 +22,7 @@ Node = class{
 		lg.circle('fill', x, y, 6)
 
 		lg.setColor(101, 123, 131)
-		lg.print(self.label .. ', #' .. #self.tiles, x, y + 10)
+		--lg.print(self.label .. ', #' .. #self.tiles, x, y + 10)
 
 	end
 }

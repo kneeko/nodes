@@ -16,8 +16,6 @@ function love.load()
 	Field()
 	Pointer()
 
-	-- signals should be used for this...
-
 end
 
 function love.update(dt)

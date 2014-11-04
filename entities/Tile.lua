@@ -33,6 +33,15 @@ Tile = class{
 		end
 
 		lg.setColor(0, 43, 54, 80)
+
+		if self.claimed then
+			lg.setColor(20, 93, 54, 180)
+		end			
+
+		if self.marked then
+			lg.setColor(190, 80, 10, 160)
+		end
+
 		lg.polygon('fill', points)
 		lg.setColor(255, 255, 255, 100)
 		lg.polygon('line', points)
@@ -42,8 +51,13 @@ Tile = class{
 	end,
 
 	refresh = function(self)
+
 		local nodes = self.nodes
+
 		-- this needs to happen whenever the node set is changed
+		-- this doesn't solve when things are positioned differently
+		-- so i really cannot let containers behave this way
+
 		local cx, cy
 		local left, right, top, bottom
 		for i = 1, #nodes do

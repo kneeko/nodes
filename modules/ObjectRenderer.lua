@@ -12,7 +12,7 @@ ObjectRenderer = class{
 		-- cameras should have a unique identifier
 
 		local queue = self.queue
-		queue[identifier] = {}
+		queue[identifier] = queue[identifier] or {}
 
 		local objects = self.objects
 		local sorter = self.sorter
@@ -28,14 +28,8 @@ ObjectRenderer = class{
 		local ct = vt + cy
 		local cb = vb + cy
 
-		-- trim the queue if this new one is shorter
-		if #queue[identifier] > #stack then
-			for i = #stack + 1, #queue[identifier] do
-				--queue[identifier][i] = nil
-			end
-		end
-
 		-- get each camera and viewport here instead
+		local count = 1
 		for i, key in ipairs(stack) do
 			local object = objects[key]
 			if object then
@@ -50,15 +44,22 @@ ObjectRenderer = class{
 						or x + l > cr
 						or y + t > cb
 						or y + b < ct
-					visible = (not culled) and not (z < 0)
+					visible = (not culled) and (z > 0)
 				end
 				if visible then
-					--queue[identifier][i] = key
-					table.insert(queue[identifier], key)
+					queue[identifier][count] = key
+					count = count + 1
+					object._queued = true
 				end
 			end
 		end
-		--self.queue[identifier] = queue[identifier]
+
+		-- trim the queue
+		if #queue[identifier] > count then
+			for i = count + 1, #queue[identifier] do
+				queue[identifier][i] = nil
+			end
+		end
 
 	end,
 
@@ -86,7 +87,8 @@ ObjectRenderer = class{
 		lg.setColor(255, 255, 255, 100)
 		lg.rectangle('line', x - 1, y - 1, r - l + 2, b - t + 2)
 
-		lg.print(count, 15, 60)
+		lg.setColor(255, 255, 255)
+		lg.print(count, 15, 15)
 
 	end,
 }
