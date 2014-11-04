@@ -9,12 +9,15 @@ function love.load()
 	end
 
 	lg.setBackgroundColor(7, 54, 66)
+	lg.setLineWidth(1)
 	manager = ObjectManager()
 	viewport = ViewportManager(manager)
 
 	--Grid()
+	--Pointer()
 	Field()
-	Pointer()
+
+	love.keyboard.setTextInput(true)
 
 end
 
@@ -24,18 +27,17 @@ function love.update(dt)
 end
 
 function love.draw()
-	viewport:draw(manager)
+	viewport:draw()
 end
 
 function love.mousepressed(x, y, button)
 	-- maybe viewport gets the callback here
 	-- passes it to the manager with worldspace coords?
-	manager:mousepressed(x, y, button)
-	viewport:mousepressed(x, y, button)
+	viewport:inputpressed(x, y, button)
 end
 
 function love.mousereleased(x, y, button)
-	viewport:mousereleased(x, y, button)
+	viewport:inputreleased(x, y, button)
 end
 
 function love.keypressed(key, code)

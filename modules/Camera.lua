@@ -92,6 +92,8 @@ Camera = class{
 	end,
 
 	project = function(self, ix, iy)
+
+		-- todo make this handle rotation correctly
 		local x, y, z = self.x, self.y, self.z
 		local w, h = self.w, self.h
 		local r = self.r
@@ -103,6 +105,7 @@ Camera = class{
 		py = py*cos - px*sin
 		px = px + x
 		py = py + y
+
 		return px, py
 	end,
 

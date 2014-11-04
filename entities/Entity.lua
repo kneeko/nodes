@@ -6,11 +6,11 @@ Entity = class{
 		self._context = context
 		self._queued = false
 
-		self.active = true
-		self.visible = true
+		self._active = true
+		self._visible = true
 
 		-- fallback attributes
-		self.type = 'generic'
+		self._type = 'generic'
 		self.positioning = 'absolute'
 		self.position = {0, 0, 0}
 		self.angle = 0
@@ -206,6 +206,7 @@ Entity = class{
 			local edges = bound.edges
 			local polygon = bound.polygon
 			local circle = bound.circle
+			local fudging = self.fudging or 1
 			local x, y, z = unpack(projection)
 			local w, h = edges[2] - edges[1], edges[4] - edges[3]
 
@@ -217,14 +218,77 @@ Entity = class{
 			lg.setColor(255, 255, 255)
 			--lg.rectangle('line', x + edges[1], y + edges[3], w, h)
 			--lg.polygon('line', unpack(points))
-			--lg.circle('line', x + circle[1], y + circle[2], circle[3])
+
+			-- seperate the circles etc etc
+			-- let this be configured more nicely
+			local cx, cy, r = unpack(circle)
+			local r = r
+			lg.setColor(255, 255, 255)
+			lg.circle('line', x + cx, y + cy, r)
+			lg.setColor(255, 255, 255, 155)
+			lg.circle('line', x + cx, y + cy, r * fudging)
+
+
 			--lg.print(tostring(self.type), x + 10, y - 7)
 
 			-- draw origin
-			lg.setColor(255, 255, 255, 155)
-			lg.circle('line', x, y, 6)
+			--lg.setColor(255, 255, 255, 155)
+			--lg.circle('line', x, y, 6)
 
 		end
+	end,
+
+	-- better name?
+	intersecting = function(self, identifier, tx, ty, how)
+
+		-- returns true if x/y is inside of the objects projection/bound
+		-- for that identifier
+
+		local projections = self.projections
+		local projection = projections[identifier]
+
+		if projection then
+
+			local px, py, _ = unpack(projection)
+			local bound = self.bound
+			local fudging = self.fudging or 1
+
+			local how = how or 'circle'
+			-- decide on method
+			if how == 'circle' then
+
+				local circle = bound.circle
+				local cx, cy, r = unpack(circle)
+				local x = px + cx
+				local y = py + cy
+				local r = r * fudging
+
+				-- allow for fudging with this
+				local inside = (math.abs(tx - x) < r) and (math.abs(ty - y) < r)
+				
+				return inside
+
+			-- temp override polygon test with rectangle...
+			elseif how == 'rectangle' or how == 'polygon' then
+
+				local edges = bound.edges
+				local w, h = edges[2] - edges[1], edges[4] - edges[3]
+				local x = px + edge[1]
+				local y = py + edge[3]
+
+				-- test rectangle
+
+
+			elseif how == 'polygon' then
+
+			end
+
+			
+
+			-- by default use circles to check?
+
+		end
+
 	end,
 
 	join = function(self, parent)

@@ -5,7 +5,7 @@ ObjectManager = class{
 		local objects = {}
 		local sorter = ObjectSorter(objects)
 		local renderer = ObjectRenderer(objects, sorter)
-		local context = (os.time()) .. '-' .. math.floor(math.random() * 1000)
+		local context = (os.time()) .. '-' .. math.floor(math.random() * 100000)
 
 		self.available = available
 		self.objects = objects
@@ -26,7 +26,7 @@ ObjectManager = class{
 		for i = 1, #heap do
 			local key = heap[i]
 			local object = objects[key]
-			if object.active then
+			if object._active then
 				object:update(dt)
 				object:compute()
 				-- do I need to call this every frame?
@@ -174,20 +174,34 @@ ObjectManager = class{
 		return heap
 	end,
 
-	delegate = function(self, method, ...)
+	propogate = function(self, method, ...)
 		local objects = self.objects
 		local index = self.index
 		if index[method] then
 			for _,key in ipairs(index[method]) do
-				objects[key][method](objects[key], ...)
+				local object = objects[key]
+				if object[method] then
+					object[method](object, ...)
+				else
+					local context = self.context
+					local err = string.format('[%s] object %s with type %s has not defined callback %s.',
+						context, object._key, object.type, method)
+					print(err)
+				end
 			end
 		end
 	end,
 
-	mousepressed = function(self, ...)
-		local x, y, button = ...
+	inputpressed = function(self, ...)
+		--local identifier, x, y, button = ...
 		-- how do I keep this viewport agnostic?
-		self:delegate('mousepressed', x, y, button)
+		self:propogate('inputpressed', ...)
+	end,
+
+	inputreleased = function(self, ...)
+		--local x, y, button = ...
+		-- how do I keep this viewport agnostic?
+		self:propogate('inputreleased', ...)
 	end,
 
 }

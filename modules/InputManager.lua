@@ -1,0 +1,3 @@
+InputManager = class{
+	
+}

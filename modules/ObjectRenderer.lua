@@ -34,7 +34,7 @@ ObjectRenderer = class{
 			local object = objects[key]
 			if object then
 				local visible, projection
-				if object.visible then
+				if object._visible then
 					object:project(identifier, camera, bound)
 					local projection = object.projections[identifier]
 					local edges = object.bound.edges
@@ -44,7 +44,7 @@ ObjectRenderer = class{
 						or x + l > cr
 						or y + t > cb
 						or y + b < ct
-					visible = (not culled) and (z > 0)
+					visible = (not culled) and (z >= 0)
 				end
 				if visible then
 					queue[identifier][count] = key
@@ -78,7 +78,9 @@ ObjectRenderer = class{
 			local object = objects[key]
 			local projection = object.projections[identifier]
 			object:draw(object:context(projection))
-			object:debug(projection)
+			if object._type == 'node' then
+				object:debug(projection)
+			end
 			count = count + 1
 		end
 

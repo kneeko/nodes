@@ -64,7 +64,8 @@ ViewportManager = class{
 		end
 	end,
 
-	draw = function(self, scene)
+	draw = function(self)
+		local scene = self.scene
 		local viewports = self.viewports
 		for i = 1, #viewports do
 			viewports[i]:draw(scene)
@@ -92,10 +93,29 @@ ViewportManager = class{
 		return viewport:project(x, y)
 	end,
 
-	mousepressed = function(self, x, y, button)
+	inputpressed = function(self, ...)
+		-- maybe pass this onto the object manager? here for each viewport?
+		local scene = self.scene
+		local viewports = self.viewports
+		local x, y, id, pressure = ...
+
+		for i = 1, #viewports do
+
+			local viewport = viewports[i]
+			local identifier = viewport._identifier
+			local camera = viewport.camera
+			local px, py = camera:project(x, y)
+
+			-- todo, reference the id to decide what this should return
+			-- todo, handle this part in the input manager
+			local source = function() return lm.getPosition() end
+
+			scene:inputpressed(identifier, px, py, id, pressure, source)
+		end
+
 	end,
 
-	mousereleased = function(self, x, y, button)
+	inputreleased = function(self, x, y, button)
 	end,
 
 	keypressed = function(self, key, code)

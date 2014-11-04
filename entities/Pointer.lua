@@ -20,7 +20,7 @@ Pointer = class{
 		local position = self.position
 		position[1] = x
 		position[2] = y
-		position[3] = math.huge
+		position[3] = 0
 		
 	end,
 

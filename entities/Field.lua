@@ -1,6 +1,6 @@
 Field = class{
 	init = function(self, step)
-		self.type = 'field'
+		self._type = 'field'
 
 		local x = 50
 		local y = 50
@@ -19,8 +19,8 @@ Field = class{
 		-- parameters for the grid of triangles that will be made
 		-- step is the distance between each column, but not row
 		local step = 90
-		local rows = 5
-		local cols = 5
+		local rows = 6
+		local cols = 8
 		local convex = true
 
 		-- we only need to calculate these once
@@ -45,12 +45,13 @@ Field = class{
 				local stagger = (r % 2 == 0) and (step * cos) or (0)
 
 				-- determine the position
-				local nx = stagger + (step) * c
-				local ny = (step * sin) * r
+				local nx = x + stagger + (step) * c
+				local ny = y + (step * sin) * r
 
 				-- make the node
 				local node = Node(nx, ny)
 
+				-- node.timer = (c / cols) * math.pi * 2
 				node.label = '(' .. r ..' , ' .. c ..')'
 
 				-- store the node in a two dimensional array
@@ -86,7 +87,7 @@ Field = class{
 				local even = r % 2 == 0
 				local shift = even and 1 or 0
 
-				-- use the identity matric to find neighbors
+				-- use the identity matrix to find neighbors
 				local neighbors = {}
 				local map = {}
 				for i,n in ipairs(possible_neighbors) do
@@ -149,23 +150,19 @@ Field = class{
 			local nodes = tile.nodes
 			local neighbors = {}
 			local occurences = {}
+			local pool = {}
 			for _,node in ipairs(nodes) do
 				for _,neighbor in ipairs(node.tiles) do
 					local key = neighbor._key
 					occurences[key] = occurences[key] and (occurences[key] + 1) or 1
-					if occurences[key] >= 2 and (not neighbors[key]) then
+					if occurences[key] >= 2 and (not neighbors[key]) and (key ~= tile._key) then
 						neighbors[key] = neighbor
 					end
 				end
 			end
-
-			local pool = {}
 			for _,neighbor in pairs(neighbors) do
-				if neighbor ~= tile then
-					pool[#pool + 1] = neighbor
-				end
+				pool[#pool + 1] = neighbor
 			end
-
 			tile.neighbors = pool
 
 			-- temp marker

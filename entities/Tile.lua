@@ -1,6 +1,6 @@
 Tile = class{
 	init = function(self, nodes)
-		self.type = 'tile'
+		self._type = 'tile'
 		-- is passed references to nodes for its children
 		-- uses their position and order to draw the fill
 
@@ -48,6 +48,18 @@ Tile = class{
 
 		lg.setColor(101, 123, 131)
 
+	end,
+
+	inform = function(self)
+		local nodes = self.nodes
+		local switch = true
+		for _,node in ipairs(nodes) do
+			switch = switch and node.hit
+		end
+
+		if switch then
+			self.marked = true
+		end
 	end,
 
 	refresh = function(self)
