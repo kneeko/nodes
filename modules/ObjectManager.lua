@@ -20,9 +20,6 @@ ObjectManager = class{
 
 	update = function(self, dt)
 
-		-- should I be doing the projection here?
-		-- well, I only want to be projecting objects
-		-- that are returned by the sorter, so perhaps not..
 		local objects = self.objects
 		local sorter = self.sorter
 		local heap = self:get()
@@ -32,13 +29,19 @@ ObjectManager = class{
 			if object.active then
 				object:update(dt)
 				object:compute()
-				
 				-- do I need to call this every frame?
 				sorter:move(key)
 			end
 		end
 
 		--renderer:prepare(camera, viewport)
+
+	end,
+
+	prepare = function(self, identifier, camera, viewport)
+		-- generate a list of visible scene objects and cache their projection
+		local renderer = self.renderer
+		renderer:prepare(identifier, camera, viewport)
 
 	end,
 

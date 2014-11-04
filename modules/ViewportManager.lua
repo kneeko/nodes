@@ -46,18 +46,18 @@ ViewportManager = class{
 		end
 
 		local viewports = self.viewports
+		local scene = self.scene
 		for i = 1, #viewports do
+			local viewport = viewports[i]
 			-- TODO fix the angled translation
-			viewports[i]:rotate(dr)
-			local angle = viewports[i].angle
+			viewport:rotate(dr)
+			local angle = viewport.angle
 			local x = dx-- * math.cos(angle) + dy * math.sin(angle)
 			local y = dy-- * math.sin(angle) + dy * math.cos(angle)
 			local z = dz
-			viewports[i]:translate(x, y, z)
-			viewports[i]:update(dt)
-
-			
-			
+			viewport:translate(x, y, z)
+			viewport:update(dt)
+			viewport:prepare(scene)
 		end
 	end,
 

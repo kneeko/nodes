@@ -21,9 +21,10 @@ Entity = class{
 
 	end,
 
-	project = function(self, camera, viewport)
+	project = function(self, identifier, camera, viewport)
 
 		local positioning = self.positioning
+		local projections = self.projections or {}
 		local position = self.position
 		local x, y, z = unpack(position)
 		local cx, cy, cz = unpack(camera)
@@ -61,8 +62,8 @@ Entity = class{
 			projection[2] = cy + x + py + oy
 		end
 
-		self.projection = projection
-		return projection
+		projections[identifier] = projection
+		self.projections = projections
 
 	end,
 

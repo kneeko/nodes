@@ -4,6 +4,8 @@ ViewportController = class{
 		local identifier = (os.time()) .. '-' .. math.floor(math.random() * 1000)
 		self._identifier = identifier
 
+		print('Created a viewport with id: ' .. identifier)
+
 		local ww, wh = lg.getWidth(), lg.getHeight()
 		local w = ww * scale
 		local h = wh
@@ -75,6 +77,15 @@ ViewportController = class{
 		local step = self.step
 		lg.draw(canvas, step)
 		lg.setBlendMode('alpha')
+
+	end,
+
+	prepare = function(self, scene)
+
+		local identifier = self._identifier
+		local position = self.position
+		local bound = self.bound
+		scene:prepare(identifier, position, bound)
 
 	end,
 

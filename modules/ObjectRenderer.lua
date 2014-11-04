@@ -6,12 +6,18 @@ ObjectRenderer = class{
 	end,
 
 	update = function(self)
+		
+
+	end,
+
+	prepare = function(self, identifier, camera, viewport)
 		-- project all the objects here
 		-- determine if they will be culled
 		-- supporting multiple viewports here becomes pretty tedious
 		-- cameras should have a unique identifier
 
 		local queue = self.queue
+		queue[identifier] = queue[identifier] or {}
 
 		local objects = self.objects
 		local sorter = self.sorter
@@ -34,7 +40,9 @@ ObjectRenderer = class{
 			if object then
 				local visible, projection
 				if object.visible then
-					projection = object:project(camera, viewport)
+					-- use identifier to seperate the different projections
+					object:project(identifier, camera, viewport)
+					local projection = object.projections[identifier]
 					local edges = object.bound.edges
 					local l, r, t, b = unpack(edges)
 					local x, y, z = unpack(projection)
@@ -45,67 +53,22 @@ ObjectRenderer = class{
 					visible = (not culled) and not (z < 0)
 				end
 				if visible then
-					-- put key in queue
-					-- we also need to remember what viewport this came from
+					queue[identifier][i] = key
 				end
 			end
 		end
-
 	end,
 	
-	draw = function(self, camera, viewport)
-
+	draw = function(self)
 		local objects = self.objects
 		local queue = self.queue
-
-		-- viewports
-		
-
-
-
-		--[[
-		local objects = self.objects
-		local sorter = self.sorter
-
-		-- get the latest drawstack
-		local stack = sorter:get() or {}
-
-		-- camera position and viewport bound
-		local cx, cy, cz = unpack(camera)
-		local vl, vr, vt, vb = unpack(viewport)
-
-		-- transform the viewport bound to worldspace using camera position
-		local cl = vl + cx
-		local cr = vr + cx
-		local ct = vt + cy
-		local cb = vb + cy
-
-		for i, key in ipairs(stack) do
-			local object = objects[key]
-			if object then
-				local visible, projection
-				if object.visible then
-					projection = object:project(camera, viewport)
-					local edges = object.bound.edges
-					local l, r, t, b = unpack(edges)
-					local x, y, z = unpack(projection)
-					local culled = x + r < cl
-						or x + l > cr
-						or y + t > cb
-						or y + b < ct
-					visible = (not culled) and not (z < 0)
-				end
-				if visible then
-					-- context() provides an easier way to pass a variable # of args for use
-					-- inside of the object's draw method while giving the object itself
-					-- control over what default values it should return
-					local context = function() return object:context(projection) end
-					object:draw(context())
-					object:debug(projection)
-				end
+		for identifier,keys in pairs(queue) do
+			for _,key in ipairs(keys) do
+				local object = objects[key]
+				local projection = object.projections[identifier]
+				object:draw(object:context(projection))
+				object:debug(projection)
 			end
 		end
-		]]--
-
 	end,
 }
