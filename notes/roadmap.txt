@@ -1,0 +1,41 @@
+how do I avoid coupling the viewport to the object renderer?
+is it really such a big problem?
+
+
+
+
+
+features:
+- projection should happen in update, not draw
+- generic asset management
+	- generic weighted selection
+	- audio as well as graphics
+- font manager
+	- handles dpi scaling and drawing
+	- width/height computation memoization
+	- approximate sizes (average char width)
+- touch inputs borrowed in part from joystick prototype
+- input manager
+	- easy keymapping
+	- hitbox based region culling
+- automagic sprite batching
+- generic FSM system (with transitions?)
+- collision
+	- detection
+		- difference types (rect, poly, circ)
+	- listeners
+		- used to make 
+		- layers, types, labels
+	- intersection resolution
+		- messaging system
+		- physics?
+- camera controller
+	- follow objects
+	- easing momentum
+	- boundry
+- touch input
+	- define input and output sources
+		- two fingers pan -> pass to movement controller
+		- one finger -> pass to drawing controller
+		- pinch zoom -> pass to camera controller
+- object registration using signals?

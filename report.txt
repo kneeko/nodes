@@ -1,0 +1,142 @@
+###############################################################################################################
+#####  ProFi, a lua profiler. This profile was generated on: Thu Sep 11 11:20:21 2014
+#####  ProFi is created by Luke Perkin 2012 under the MIT Licence, www.locofilm.co.uk
+#####  Version 1.3. Get the most recent version at this gist: https://gist.github.com/2838755
+###############################################################################################################
+
+| TOTAL TIME = 1.746517
+| FILE                                              : FUNCTION                                : LINE                : TIME        : RELATIVE    : CALLED      |
+| main.lua                                          : update                                  :   18                : 1.341       : 76.80%      :       3     |
+| modules/ObjectManager.lua                         : update                                  :   12                : 1.341       : 76.80%      :       3     |
+| modules/ObjectSorter.lua                          : insert                                  :   18                : 1.325       : 75.84%      :     366     |
+| modules/ObjectSorter.lua                          : move                                    :   99                : 1.295       : 74.16%      :     300     |
+| modules/ObjectSorter.lua                          : traverse                                :  261                : 1.131       : 64.75%      :     266     |
+| modules/ObjectSorter.lua                          : anonymous                               :   64                : 0.371       : 21.23%      :  130565     |
+| lib/class.lua                                     : Cat                                     :   73                : 0.356       : 20.37%      :     100     |
+| modules/Cat.lua                                   : init                                    :    2                : 0.353       : 20.19%      :     100     |
+| modules/ObjectManager.lua                         : register                                :   49                : 0.239       : 13.70%      :     100     |
+| lib/class.lua                                     : include                                 :   27                : 0.158       : 9.04%       :     400     |
+| lib/class.lua                                     : include_helper                          :   27                : 0.099       : 5.67%       :    5400     |
+| modules/ObjectSorter.lua                          : (for generator)                         :  273                : 0.070       : 4.03%       :   21423     |
+| modules/Cat.lua                                   : update                                  :   42                : 0.043       : 2.48%       :     300     |
+| modules/Entity.lua                                : compute                                 :   75                : 0.040       : 2.26%       :     300     |
+| main.lua                                          : draw                                    :   23                : 0.030       : 1.72%       :       3     |
+| modules/ViewportController.lua                    : draw                                    :   29                : 0.028       : 1.62%       :       3     |
+| lib/Camera.lua                                    : draw                                    :   93                : 0.027       : 1.55%       :       3     |
+| modules/ViewportController.lua                    : func                                    :   34                : 0.027       : 1.54%       :       3     |
+| modules/ObjectManager.lua                         : draw                                    :   27                : 0.027       : 1.54%       :       3     |
+| modules/ObjectRenderer.lua                        : draw                                    :    6                : 0.024       : 1.35%       :       3     |
+| dependencies.lua                                  : anonymous                               :   27                : 0.014       : 0.82%       :       1     |
+| dependencies.lua                                  : anonymous                               :   29                : 0.014       : 0.79%       :      14     |
+| dependencies.lua                                  : callback                                :    1                : 0.013       : 0.77%       :      14     |
+| modules/Cat.lua                                   : draw                                    :   56                : 0.012       : 0.68%       :     300     |
+| modules/ObjectSorter.lua                          : remove                                  :  226                : 0.006       : 0.36%       :     266     |
+| modules/ObjectManager.lua                         : get                                     :  131                : 0.004       : 0.23%       :     103     |
+| modules/Entity.lua                                : project                                 :   20                : 0.003       : 0.17%       :     300     |
+| modules/Entity.lua                                : init                                    :    2                : 0.003       : 0.15%       :     100     |
+| [string "graphics.lua"]                           : print                                   : 1267                : 0.001       : 0.09%       :       1     |
+| modules/ObjectSorter.lua                          : f                                       :  133                : 0.001       : 0.07%       :     296     |
+| modules/Entity.lua                                : context                                 :   57                : 0.001       : 0.07%       :     300     |
+| modules/Collidable.lua                            : init                                    :    2                : 0.001       : 0.06%       :     100     |
+| modules/ObjectSorter.lua                          : f                                       :  134                : 0.001       : 0.03%       :     133     |
+| [string "graphics.lua"]                           : getFont                                 : 1258                : 0.000       : 0.02%       :       1     |
+| [string "graphics.lua"]                           : setNewFont                              : 1252                : 0.000       : 0.02%       :       1     |
+| modules/ObjectManager.lua                         : anonymous                               :    0                : 0.000       : 0.02%       :       1     |
+| lib/class.lua                                     : ObjectManager                           :   73                : 0.000       : 0.01%       :       1     |
+| lib/class.lua                                     : ViewportController                      :   73                : 0.000       : 0.01%       :       1     |
+| modules/ViewportController.lua                    : anonymous                               :    0                : 0.000       : 0.01%       :       1     |
+| modules/ObjectManager.lua                         : init                                    :    2                : 0.000       : 0.01%       :       1     |
+| modules/ViewportController.lua                    : init                                    :    2                : 0.000       : 0.01%       :       1     |
+| lib/Camera.lua                                    : attach                                  :   80                : 0.000       : 0.01%       :       3     |
+| modules/Collidable.lua                            : anonymous                               :    0                : 0.000       : 0.01%       :       1     |
+| modules/ObjectCollisions.lua                      : anonymous                               :    0                : 0.000       : 0.01%       :       1     |
+| modules/Entity.lua                                : anonymous                               :    0                : 0.000       : 0.01%       :       1     |
+| modules/ObjectSorter.lua                          : anonymous                               :    0                : 0.000       : 0.00%       :       1     |
+| modules/ObjectRenderer.lua                        : anonymous                               :    0                : 0.000       : 0.00%       :       1     |
+| helpers/deepcompare.lua                           : anonymous                               :    0                : 0.000       : 0.00%       :       1     |
+| modules/Cat.lua                                   : anonymous                               :    0                : 0.000       : 0.00%       :       1     |
+| modules/ViewportController.lua                    : update                                  :   14                : 0.000       : 0.00%       :       3     |
+| lib/class.lua                                     : ObjectSorter                            :   73                : 0.000       : 0.00%       :       1     |
+| lib/class.lua                                     : ObjectRenderer                          :   73                : 0.000       : 0.00%       :       1     |
+| helpers/aliases.lua                               : aliases                                 :    1                : 0.000       : 0.00%       :       1     |
+| lib/Camera.lua                                    : detach                                  :   89                : 0.000       : 0.00%       :       3     |
+| helpers/inside.lua                                : anonymous                               :    0                : 0.000       : 0.00%       :       1     |
+| helpers/map.lua                                   : anonymous                               :    0                : 0.000       : 0.00%       :       1     |
+| helpers/aliases.lua                               : anonymous                               :    0                : 0.000       : 0.00%       :       1     |
+| [string "boot.lua"]                               : anonymous                               :  172                : 0.000       : 0.00%       :       1     |
+| modules/ObjectRenderer.lua                        : init                                    :    2                : 0.000       : 0.00%       :       1     |
+| modules/ObjectSorter.lua                          : init                                    :   11                : 0.000       : 0.00%       :       1     |
+| [string "boot.lua"]                               : anonymous                               :  166                : 0.000       : 0.00%       :       1     |
+| dependencies.lua                                  : anonymous                               :    0                : 0.000       : 0.00%       :       1     |
+| modules/ObjectSorter.lua                          : get                                     :  257                : 0.000       : 0.00%       :       3     |
+| lib/Camera.lua                                    : set                                     :   74                : 0.000       : 0.00%       :       3     |
+| profi.lua                                         : shouldReturn                            :  199                : 0.000       : 0.00%       :       1     |
+| [C]                                               : getFPS                                  :   -1                : 0.000       : 0.00%       :       3     |
+| [C]                                               : origin                                  :   -1                : 0.000       : 0.00%       :       3     |
+| [C]                                               : clear                                   :   -1                : 0.000       : 0.00%       :       3     |
+| [C]                                               : isCreated                               :   -1                : 0.000       : 0.00%       :       3     |
+| profi.lua                                         : startHooks                              :  234                : 0.000       : 0.00%       :       0     |
+| [string "graphics.lua"]                           : newFont                                 : 1245                : 0.000       : 0.00%       :       1     |
+| [C]                                               : present                                 :   -1                : 0.000       : 0.00%       :       3     |
+| [C]                                               : pop                                     :   -1                : 0.000       : 0.00%       :       3     |
+| [C]                                               : rectangle                               :   -1                : 0.000       : 0.00%       :       6     |
+| [C]                                               : draw                                    :   -1                : 0.000       : 0.00%       :     300     |
+| [C]                                               : sleep                                   :   -1                : 0.000       : 0.00%       :       3     |
+| main.lua                                          : anonymous                               :   32                : 0.000       : 0.00%       :       1     |
+| [string "boot.lua"]                               : anonymous                               :  121                : 0.000       : 0.00%       :       1     |
+| profi.lua                                         : stop                                    :   85                : 0.000       : 0.00%       :       1     |
+| [C]                                               : _getFont                                :   -1                : 0.000       : 0.00%       :       1     |
+| [C]                                               : setColor                                :   -1                : 0.000       : 0.00%       :     312     |
+| [C]                                               : rotate                                  :   -1                : 0.000       : 0.00%       :       3     |
+| [C]                                               : setFont                                 :   -1                : 0.000       : 0.00%       :       1     |
+| [C]                                               : newFont                                 :   -1                : 0.000       : 0.00%       :       1     |
+| modules/ObjectRenderer.lua                        : context                                 :   40                : 0.000       : 0.00%       :     300     |
+| [C]                                               : print                                   :   -1                : 0.000       : 0.00%       :       9     |
+| [C]                                               : scale                                   :   -1                : 0.000       : 0.00%       :       3     |
+| [C]                                               : push                                    :   -1                : 0.000       : 0.00%       :       3     |
+| [C]                                               : translate                               :   -1                : 0.000       : 0.00%       :       6     |
+| modules/ObjectSorter.lua                          : anonymous                               :  267                : 0.000       : 0.00%       :  130565     |
+| main.lua                                          : load                                    :    1                : 0.000       : 0.00%       :       0     |
+| [C]                                               : remove                                  :   -1                : 0.000       : 0.00%       :     266     |
+| [C]                                               : getmetatable                            :   -1                : 0.000       : 0.00%       :       8     |
+| lib/class.lua                                     : class                                   :   57                : 0.000       : 0.00%       :       8     |
+| lib/class.lua                                     : class                                   :   94                : 0.000       : 0.00%       :       8     |
+| lib/class.lua                                     : anonymous                               :    0                : 0.000       : 0.00%       :       1     |
+| [C]                                               : class                                   :   -1                : 0.000       : 0.00%       :       8     |
+| [C]                                               : getWidth                                :   -1                : 0.000       : 0.00%       :     108     |
+| [C]                                               : setmetatable                            :   -1                : 0.000       : 0.00%       :     104     |
+| [C]                                               : getHeight                               :   -1                : 0.000       : 0.00%       :     108     |
+| lib/Camera.lua                                    : Camera                                  :  123                : 0.000       : 0.00%       :       1     |
+| [C]                                               : match                                   :   -1                : 0.000       : 0.00%       :       1     |
+| [C]                                               : gsub                                    :   -1                : 0.000       : 0.00%       :      14     |
+| [C]                                               : require                                 :   -1                : 0.000       : 0.00%       :      15     |
+| profi.lua                                         : start                                   :   67                : 0.000       : 0.00%       :       0     |
+| [C]                                               : getTime                                 :   -1                : 0.000       : 0.00%       :       2     |
+| lib/Camera.lua                                    : anonymous                               :    0                : 0.000       : 0.00%       :       1     |
+| [C]                                               : anonymous                               :   -1                : 0.000       : 0.00%       :     433     |
+| [C]                                               : (for generator)                         :   -1                : 0.000       : 0.00%       :    1288     |
+| [C]                                               : ipairs                                  :   -1                : 0.000       : 0.00%       :     612     |
+| [C]                                               : getDirectoryItems                       :   -1                : 0.000       : 0.00%       :       3     |
+| [C]                                               : sort                                    :   -1                : 0.000       : 0.00%       :     266     |
+| lib/Camera.lua                                    : Camera                                  :   33                : 0.000       : 0.00%       :       1     |
+| [C]                                               : random                                  :   -1                : 0.000       : 0.00%       :     300     |
+| [C]                                               : getDelta                                :   -1                : 0.000       : 0.00%       :       3     |
+| [C]                                               : poll                                    :   -1                : 0.000       : 0.00%       :       4     |
+| [C]                                               : pump                                    :   -1                : 0.000       : 0.00%       :       4     |
+| [C]                                               : step                                    :   -1                : 0.000       : 0.00%       :       4     |
+| [C]                                               : sin                                     :   -1                : 0.000       : 0.00%       :     600     |
+| [C]                                               : min                                     :   -1                : 0.000       : 0.00%       :    1800     |
+| [C]                                               : cos                                     :   -1                : 0.000       : 0.00%       :     300     |
+| [C]                                               : max                                     :   -1                : 0.000       : 0.00%       :    2100     |
+| [C]                                               : Camera                                  :   -1                : 0.000       : 0.00%       :       1     |
+| profi.lua                                         : stopHooks                               :  238                : 0.000       : 0.00%       :       1     |
+| [C]                                               : unpack                                  :   -1                : 0.000       : 0.00%       :    9948     |
+| [C]                                               : setFilter                               :   -1                : 0.000       : 0.00%       :     100     |
+| [C]                                               : newImage                                :   -1                : 0.000       : 0.00%       :     100     |
+| [C]                                               : floor                                   :   -1                : 0.000       : 0.00%       :     106     |
+| [C]                                               : insert                                  :   -1                : 0.000       : 0.00%       :     366     |
+| [C]                                               : pairs                                   :   -1                : 0.000       : 0.00%       :    1234     |
+| lib/class.lua                                     : include                                 :   48                : 0.000       : 0.00%       :     400     |
+| [C]                                               : time                                    :   -1                : 0.000       : 0.00%       :     100     |
+| [C]                                               : type                                    :   -1                : 0.000       : 0.00%       :   10401     |
+| [C]                                               : sethook                                 :   -1                : 0.000       : 0.00%       :       1     |
