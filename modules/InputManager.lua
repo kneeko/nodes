@@ -4,6 +4,7 @@ InputManager = class{
 		self.destinations = {}
 		self.profiles = {}
 		self.map = {}
+		self.sources = {}
 
 		local width = lg.getWidth()
 		local height = lg.getHeight()
@@ -96,12 +97,15 @@ InputManager = class{
 	end,
 
 	mousepressed = function(self, x, y, button)
-		
+
 		local id = button
 		local pressure = 1
-		local source = self:get_source(id, 'mouse')
+
+		self:add_source(id, 'mouse')
+		local source = self:get_source(id)
 
 		self:dispatch('inputpressed', 'input', x, y, id, pressure, source)
+
 	end,
 
 	mousereleased = function(self, x, y, button)
@@ -110,19 +114,28 @@ InputManager = class{
 		local pressure = 1
 
 		self:dispatch('inputreleased', 'input', x, y, id, pressure)
+		self:rem_source(id)
+
 	end,
 
 	touchpressed = function(self, id, x, y, pressure)
 
 		local x, y = self:to_screen(x, y)
-		local source = self:get_source(id, 'touch')
+
+		self:add_source(id, 'touch')
+		local source = self:get_source(id)
 
 		self:dispatch('inputpressed', 'input', x, y, id, pressure, source)
+
 	end,
 
 	touchreleased = function(self, id, x, y, pressure)
+
 		local x, y = self:to_screen(x, y)
+
 		self:dispatch('inputreleased', 'input', x, y, id, pressure)
+		self:rem_source(id)
+
 	end,
 
 	keypressed = function(self, key, code)
@@ -157,13 +170,14 @@ InputManager = class{
 
 	end,
 
-	get_source = function(self, id, method)
+	add_source = function(self, id, method)
 
-		-- todo: store these sources
+		local sources = self.sources
+		local source
 
 		if method == 'touch' then
 
-			return function()
+			source = function()
 				local touch = love.touch
 				local c = touch.getTouchCount()
 				for n = 1, c do
@@ -176,11 +190,31 @@ InputManager = class{
 			end
 
 		elseif method == 'mouse' then
-			return function()
+
+			source = function()
 				local x, y = love.mouse.getPosition()
 				return x, y, 1
 			end
+
 		end
+
+		sources[id] = source
+
+	end,
+
+	rem_source = function(self, id, method)
+
+		local sources = self.sources
+		sources[id] = nil
+
+	end,
+
+	get_source = function(self, id)
+
+		local sources = self.sources
+		local source = sources[id]
+
+		return source
 
 	end,
 
