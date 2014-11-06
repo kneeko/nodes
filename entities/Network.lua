@@ -1,6 +1,6 @@
-Field = class{
+Network = class{
 	init = function(self, step)
-		self._type = 'field'
+		self._type = 'network'
 
 		local x = 50
 		local y = 50
@@ -15,6 +15,8 @@ Field = class{
 		self.origin = {0, 0}
 		self.angle = 0
 		self.timer = 0
+
+		self.callbacks = {'inputpressed', 'inputreleased'}
 
 		-- parameters for the grid of triangles that will be made
 		-- step is the distance between each column, but not row
@@ -50,6 +52,8 @@ Field = class{
 
 				-- make the node
 				local node = Node(nx, ny)
+
+				--node.timer = (c / cols) * math.pi * 2
 
 				-- node.timer = (c / cols) * math.pi * 2
 				node.label = '(' .. r ..' , ' .. c ..')'
@@ -165,16 +169,10 @@ Field = class{
 			end
 			tile.neighbors = pool
 
-			-- temp marker
-			if math.random() > 0.99 then
-				for _,neighbor in ipairs(pool) do
-					neighbor.marked = true
-				end
-			end
-
 		end
 
-		print(#tiles .. ' tiles, ' .. rows .. ' rows by ' .. cols .. ' cols')
+		local status = ('Created a node graph with %s tiles, %s, rows, %s cols.'):format(#tiles, rows, cols)
+		print(status)
 
 		getManager():register(self)
 	end,
@@ -189,5 +187,15 @@ Field = class{
 		local ox, oy = unpack(origin)
 		local kx, ky = unpack(shear)
 		local graphic = self.graphic
+	end,
+
+	inputpressed = function(self)
+		-- send to relevant nodes?
+	end,
+
+	inputreleased = function(self)
+		-- send to relevant nodes?
+		-- is it possible to have this return keys to hte object manager
+		-- and send it to those as well?
 	end,
 }

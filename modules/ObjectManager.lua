@@ -184,8 +184,8 @@ ObjectManager = class{
 					object[method](object, ...)
 				else
 					local context = self.context
-					local err = string.format('[%s] object %s with type %s has not defined callback %s.',
-						context, object._key, object.type, method)
+					local err = string.format('[%s] object %s with type "%s" has not defined callback %s.',
+						context, object._key, object._type, method)
 					print(err)
 				end
 			end

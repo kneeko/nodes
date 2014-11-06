@@ -16,6 +16,9 @@ Node = class{
 	end,
 
 	update = function(self, dt)
+		--self.timer = self.timer + dt * 4
+		--local dy = math.sin(self.timer) * dt * 50
+		--self.position[2] = self.position[2] + dy
 	end,
 
 	draw = function(self, ...)
@@ -35,8 +38,9 @@ Node = class{
 	end,
 
 	inputpressed = function(self, identifier, x, y, id, pressure, source)
-		local position = self.position
 
+		local position = self.position
+		-- change this name
 		if self:intersecting(identifier, x, y) then
 			self.hit = true
 			local tiles = self.tiles

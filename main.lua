@@ -15,9 +15,15 @@ function love.load()
 
 	--Grid()
 	--Pointer()
-	Field()
+	local graph = Network()
 
-	love.keyboard.setTextInput(true)
+	-- test netcode?
+
+	input = InputManager()
+	input:register(viewport, {'input', 'keyboard'})
+
+
+	--love.keyboard.setTextInput(true)
 
 end
 
@@ -31,16 +37,24 @@ function love.draw()
 end
 
 function love.mousepressed(x, y, button)
-	-- maybe viewport gets the callback here
-	-- passes it to the manager with worldspace coords?
-	viewport:inputpressed(x, y, button)
+	input:mousepressed(x, y, button)
 end
 
 function love.mousereleased(x, y, button)
-	viewport:inputreleased(x, y, button)
+	input:mousereleased(x, y, button)
+end
+
+function love.touchpressed(id, x, y, pressure)
+	input:touchpressed(id, x, y, pressure)
+end
+
+function love.touchreleased(id, x, y, pressure)
+	input:touchreleased(id, x, y, pressure)
 end
 
 function love.keypressed(key, code)
+	input:keypressed(key, code)
+	
 	if key == 'escape' then
 		le.quit()
 	end
@@ -51,16 +65,11 @@ function love.keypressed(key, code)
 		manager:pop()
 	end
 
-	if tonumber(key) then
-		viewport:set(tonumber(key))
-	end
-
-	viewport:keypressed(key, code)
 
 end
 
 function love.keyreleased(key, code)
-	viewport:keyreleased(key, code)
+	input:keyreleased(key, code)
 end
 
 function love.resize(w, h)

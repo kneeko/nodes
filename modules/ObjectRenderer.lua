@@ -68,6 +68,7 @@ ObjectRenderer = class{
 		queue[identifier] = nil
 	end,
 	
+	-- this is called on a per-viewport basis
 	draw = function(self, identifier, camera, bound)
 	
 		local objects = self.objects
@@ -84,13 +85,11 @@ ObjectRenderer = class{
 			count = count + 1
 		end
 
+		-- draw viewport outline
 		local x, y, z = unpack(camera)
 		local l, r, t, b = unpack(bound)
 		lg.setColor(255, 255, 255, 100)
 		lg.rectangle('line', x - 1, y - 1, r - l + 2, b - t + 2)
-
-		lg.setColor(255, 255, 255)
-		lg.print(count, 15, 15)
 
 	end,
 }

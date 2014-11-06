@@ -97,6 +97,27 @@ ViewportManager = class{
 		-- maybe pass this onto the object manager? here for each viewport?
 		local scene = self.scene
 		local viewports = self.viewports
+		local x, y, id, pressure, source = ...
+
+		for i = 1, #viewports do
+
+			local viewport = viewports[i]
+			local identifier = viewport._identifier
+			local camera = viewport.camera
+			local px, py = camera:project(x, y)
+
+			-- todo, reference the id to decide what this should return
+			-- todo, handle this part in the input manager
+
+			scene:inputpressed(identifier, px, py, id, source)
+		end
+
+	end,
+
+	inputreleased = function(self, ...)
+		-- maybe pass this onto the object manager? here for each viewport?
+		local scene = self.scene
+		local viewports = self.viewports
 		local x, y, id, pressure = ...
 
 		for i = 1, #viewports do
@@ -108,14 +129,9 @@ ViewportManager = class{
 
 			-- todo, reference the id to decide what this should return
 			-- todo, handle this part in the input manager
-			local source = function() return lm.getPosition() end
 
-			scene:inputpressed(identifier, px, py, id, pressure, source)
+			scene:inputreleased(identifier, px, py, id, pressure)
 		end
-
-	end,
-
-	inputreleased = function(self, x, y, button)
 	end,
 
 	keypressed = function(self, key, code)
@@ -126,8 +142,13 @@ ViewportManager = class{
 			self.zooming = true
 		end
 		if key == 'lshift' then
-			self.rotating = true
+			--self.rotating = true
 		end
+
+		if tonumber(key) then
+			self:set(tonumber(key))
+		end
+
 	end,
 
 	keyreleased = function(self, key, code)
@@ -138,7 +159,7 @@ ViewportManager = class{
 			self.zooming = false
 		end
 		if key == 'lshift' then
-			self.rotating = false
+			--self.rotating = false
 		end
 	end,
 }
