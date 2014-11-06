@@ -27,8 +27,12 @@ ObjectManager = class{
 			local key = heap[i]
 			local object = objects[key]
 			if object._active then
-				object:update(dt)
-				object:compute()
+				if object.update then
+					object:update(dt)
+				end
+				if object.compute then
+					object:compute()
+				end
 				-- do I need to call this every frame?
 				sorter:move(key)
 			end

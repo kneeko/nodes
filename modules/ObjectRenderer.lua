@@ -78,7 +78,9 @@ ObjectRenderer = class{
 		for _,key in ipairs(keys) do
 			local object = objects[key]
 			local projection = object.projections[identifier]
-			object:draw(object:context(projection))
+			if object.draw then
+				object:draw(object:context(projection))
+			end
 			if object._type == 'node' then
 				object:debug(projection)
 			end

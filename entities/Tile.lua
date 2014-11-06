@@ -59,6 +59,8 @@ Tile = class{
 
 		if switch then
 			self.marked = true
+		else
+			self.marked = false
 		end
 	end,
 

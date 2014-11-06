@@ -42,11 +42,8 @@ Node = class{
 		local position = self.position
 		-- change this name
 		if self:intersecting(identifier, x, y) then
-			self.hit = true
-			local tiles = self.tiles
-			for _,tile in ipairs(tiles) do
-				tile:inform()
-			end
+			getManager().objects[self._key]:toggle()
+			client:broadcast(self._key)
 		end
 
 
@@ -63,5 +60,18 @@ Node = class{
 		-- maybe a Volume include? what is a good name
 
 
+	end,
+
+	toggle = function(self)
+		local hit = self.hit
+		if hit then
+			self.hit = false
+		else
+			self.hit = true
+		end
+		local tiles = self.tiles
+		for _,tile in ipairs(tiles) do
+			tile:inform()
+		end
 	end,
 }

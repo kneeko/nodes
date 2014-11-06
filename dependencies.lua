@@ -15,6 +15,10 @@ local sets = {
 		callback = callback,
 	},
 	{
+		dir = 'net',
+		callback = callback,
+	},
+	{
 		dir = 'modules',
 		callback = callback,
 	},

@@ -13,14 +13,18 @@ function love.load()
 	manager = ObjectManager()
 	viewport = ViewportManager(manager)
 
-	--Grid()
-	--Pointer()
-	local graph = Network()
+	local graph = Graph()
+
+	-- starts a thread with a network connection
+	client = ClientManager()
+
+
 
 	-- test netcode?
 
 	input = InputManager()
 	input:register(viewport, {'input', 'keyboard'})
+	input:register(client, {'keyboard'})
 
 
 	--love.keyboard.setTextInput(true)
@@ -65,7 +69,6 @@ function love.keypressed(key, code)
 		manager:pop()
 	end
 
-
 end
 
 function love.keyreleased(key, code)
@@ -74,4 +77,8 @@ end
 
 function love.resize(w, h)
 	viewport:resize()
+end
+
+function love.threaderror(thread, message)
+	print(message)
 end
