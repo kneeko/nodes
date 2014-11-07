@@ -31,7 +31,7 @@ Client = class{
 		if connected then
 
 			local hub = self.hub
-			hub:enterFrame()
+			hub:update()
 
 			local poll = self.poll
 

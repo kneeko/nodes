@@ -80,7 +80,7 @@ noobhub = {
 				return true
 		end
 
-		function self:enterFrame()
+		function self:update()
 				local input,output = socket.select({ self.sock },nil, 0) -- this is a way not to block runtime while reading socket. zero timeout does the trick
 
 				for i,v in ipairs(input) do  -------------
@@ -112,28 +112,6 @@ noobhub = {
 				end -- / for-do
 				
 		end; -- /enterFrame
-
-		-- platform dependent code
-		if (system == nil) then
-				if (application ~= nil) then -- most likely Gideros
-					local timer = Timer.new(33, 0)
-					timer:addEventListener(Event.TIMER,  function() self:enterFrame(); end );
-					timer:start()
-				end
-				if (MOAIJsonParser ~= nil) then -- most likely MoaiSDK
-					local timer = MOAITimer.new ()
-					timer:setSpan( 0.033 )
-					timer:setMode(MOAITimer.LOOP)
-					timer:setListener( MOAITimer.EVENT_TIMER_END_SPAN, function() self:enterFrame(); end, true )
-					timer:start()
-				end
-				if (love ~= nil) then -- most likely LÖVE
-					-- do nothing, as Noobhub's enterFrame() method should be manually
-					-- called on every love.update() callback to give it some CPU time
-				end
-			else  -- most likely CoronaSDK
-				Runtime:addEventListener('enterFrame', self)
-		end -- /platform dependent code
 
 		return self
 	end -- /new

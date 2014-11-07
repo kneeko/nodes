@@ -26,6 +26,8 @@ function love.load()
 	input:register(viewport, {'input', 'keyboard'})
 	input:register(client, {'keyboard'})
 
+	Identifier()
+
 
 	--love.keyboard.setTextInput(true)
 
@@ -49,11 +51,11 @@ function love.mousereleased(x, y, button)
 end
 
 function love.touchpressed(id, x, y, pressure)
-	input:touchpressed(id, x, y, pressure)
+	--input:touchpressed(id, x, y, pressure)
 end
 
 function love.touchreleased(id, x, y, pressure)
-	input:touchreleased(id, x, y, pressure)
+	--input:touchreleased(id, x, y, pressure)
 end
 
 function love.keypressed(key, code)

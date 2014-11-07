@@ -1,10 +1,10 @@
 ViewportController = class{
 	init = function(self, v, step, scale, interaxial)
 
-		local identifier = (os.time()) .. '-' .. math.floor(math.random() * 100000000)
+		local identifier = Identifier()
 		self._identifier = identifier
 
-		print('Created a viewport with id: ' .. identifier)
+		print('Created a viewport with id: ' .. identifier:get())
 
 		local ww, wh = lg.getWidth(), lg.getHeight()
 		local w = ww * scale
@@ -57,7 +57,7 @@ ViewportController = class{
 		local bound = self.bound
 		local camera = self.camera
 		local canvas = self.canvas
-		local identifier = self._identifier
+		local identifier = self._identifier:get()
 
 		lg.setCanvas(canvas)
 		canvas:clear()
@@ -84,7 +84,7 @@ ViewportController = class{
 
 	prepare = function(self, scene)
 
-		local identifier = self._identifier
+		local identifier = self._identifier:get()
 		local position = self.position
 		local bound = self.bound
 		scene:prepare(identifier, position, bound)

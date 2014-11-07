@@ -10,7 +10,7 @@ Node = class{
 		self.tiles = {}
 
 		self.callbacks = {'inputpressed'}
-		self.fudging = 2.5
+		self.fudging = 5
 
 		getManager():register(self)
 	end,

@@ -78,7 +78,7 @@ ViewportManager = class{
 		local viewports = self.viewports
 		for i = 1, #viewports do
 			local viewport = viewports[i]
-			local identifier = viewport._identifier
+			local identifier = viewport._identifier:get()
 			scene:flush(identifier)
 		end
 		self:init(scene, n)
@@ -102,7 +102,7 @@ ViewportManager = class{
 		for i = 1, #viewports do
 
 			local viewport = viewports[i]
-			local identifier = viewport._identifier
+			local identifier = viewport._identifier:get()
 			local camera = viewport.camera
 			local px, py = camera:project(x, y)
 
@@ -123,7 +123,7 @@ ViewportManager = class{
 		for i = 1, #viewports do
 
 			local viewport = viewports[i]
-			local identifier = viewport._identifier
+			local identifier = viewport._identifier:get()
 			local camera = viewport.camera
 			local px, py = camera:project(x, y)
 

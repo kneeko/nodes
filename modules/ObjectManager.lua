@@ -5,16 +5,16 @@ ObjectManager = class{
 		local objects = {}
 		local sorter = ObjectSorter(objects)
 		local renderer = ObjectRenderer(objects, sorter)
-		local context = (os.time()) .. '-' .. math.floor(math.random() * 100000)
+		local identifier = Identifier()
 
 		self.available = available
 		self.objects = objects
 		self.sorter = sorter
 		self.renderer = renderer
-		self.context = context
 		self.index = {}
+		self._identifier = identifier
 
-		print('ObjectManager init\'d with context ' .. context)
+		print('ObjectManager init\'d with identifier ' .. identifier:get())
 
 	end,
 
@@ -89,7 +89,7 @@ ObjectManager = class{
 		local sorter = self.sorter
 		local available = self.available
 		local heap = self:get() or {}
-		local context = self.context
+		local identifier = self._identifier:get()
 
 		local key
 		for i,suggestion in ipairs(available) do
@@ -111,7 +111,7 @@ ObjectManager = class{
 		objects[key] = object
 
 		-- copy fallback values from entity
-		object:include(Entity:init(key, context))
+		object:include(Entity:init(key, identifier))
 		object:include(Entity)
 
 		-- include any requested classes
@@ -187,9 +187,9 @@ ObjectManager = class{
 				if object[method] then
 					object[method](object, ...)
 				else
-					local context = self.context
+					local identifier = self._identifier:get()
 					local err = string.format('[%s] object %s with type "%s" has not defined callback %s.',
-						context, object._key, object._type, method)
+						identifier, object._key, object._type, method)
 					print(err)
 				end
 			end
