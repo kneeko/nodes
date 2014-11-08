@@ -22,15 +22,20 @@ Node = class{
 	end,
 
 	draw = function(self, ...)
-		local position = ...
+		local position, angle, scale, origin, shear = ...
 		local x, y, z = unpack(position)
+		local ox, oy = unpack(origin)
 
-		lg.setColor(42, 161, 152)
 		if self.hit then
-			lg.setColor(255, 0, 0)
+			lg.setColor(255, 149, 0)
+		else
+			lg.setColor(42, 161, 152)
 		end
 
 		lg.circle('fill', x, y, 6)
+
+		lg.setColor(255, 255, 255, 155)
+		lg.circle('line', x, y, 6)
 
 		lg.setColor(101, 123, 131)
 		--lg.print(self.label .. ', #' .. #self.tiles, x, y + 10)
@@ -40,10 +45,13 @@ Node = class{
 	inputpressed = function(self, identifier, x, y, id, pressure, source)
 
 		local position = self.position
+
+		if tonumber(id) or id == 'l' then 
 		-- change this name
-		if self:intersecting(identifier, x, y) then
-			getManager().objects[self._key]:toggle()
-			client:broadcast(self._key)
+			if self:intersecting(identifier, x, y) then
+				getManager().objects[self._key]:toggle()
+				client:broadcast(self._key)
+			end
 		end
 
 

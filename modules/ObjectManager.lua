@@ -122,6 +122,10 @@ ObjectManager = class{
 		end
 
 		-- index any requested callbacks
+		-- are these ever going to be something apart from input?
+		-- if so, I could skip this and just register them with that!
+		-- although if I want to do some processing specific to the object manager
+		-- this lets me filter them through that
 		local index = self.index
 		local callbacks = object.callbacks or {}
 		for _,callback in ipairs(callbacks) do

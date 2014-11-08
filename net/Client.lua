@@ -82,24 +82,39 @@ Client = class{
 
 		local hub = noobhub.new({server = server, port = port})
 
-		hub:subscribe({
+		local connected = hub:subscribe({
 			channel = channel,
 			callback = function(message)
+
+				local time = love.timer.getTime()
+				local ping = math.ceil(time - message.timestamp)
+				local status = ('Packet took %sms'):format(ping)
+
 				if message.user ~= id then
+
+					-- other users broadcasts
+
+					-- we may want to treat this slightly different
+					-- but mostly all events coming from the client should be
+					-- treated the same way
 					-- send this to the inbound channel
-					inbound:push(message)
+
 				else
 
-					-- we can keep track of ping here
-					local time = love.timer.getTime()
-					local ping = math.ceil(time - message.timestamp)
-					local status = ('own packet retuned in %sms'):format(ping)
-					print(status)
+					-- our own broadcasts
 
 				end
 
+				inbound:push(message)
+
 			end
 		})
+
+
+		if not connected then
+			print('unable to connect')
+			-- send something back with inbound?
+		end
 
 		self.hub = hub
 		self.timer = 0

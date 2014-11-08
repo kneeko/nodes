@@ -27,10 +27,11 @@ ClientManager = class{
 			for i = 1, pending do
 				local message = inbound:pop()
 
+				-- give this message to the turn manager
 				local action = tonumber(message.message)
 				if action then
 
-					-- this should get sent to actions
+					-- this should be given to the turn manager
 					print(action)
 					getManager().objects[action]:toggle()
 
@@ -51,7 +52,7 @@ ClientManager = class{
 
 	broadcast = function(self, message)
 
-		-- this should come from the action manager
+		-- this should come from the turn manager
 
 		-- how do i make the actions this action manager handles completely arbitrary?
 		-- nodes and tiles need a specific id
@@ -59,9 +60,11 @@ ClientManager = class{
 
 		local connected = self.connected
 		if connected then
+
 			local channels = self.channels
 			local outbound = channels.outbound
 			outbound:push(message)
+			
 		end
 
 	end,

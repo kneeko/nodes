@@ -17,7 +17,7 @@ local config = {
 	console_override_print = true,
 	console_height = 0.33,
 	console_key_repeat = true,
-	console_start_open = false,
+	console_start_open = true,
 
 	enable_remote = false,
 	font = "whitrabt.ttf",
@@ -273,7 +273,7 @@ cupid_commands:add("reload", function(...) return cupid_reload(...) end)
 
 local cupid_font_data;
 local function cupid_font(size)
-	g.newFont('assets/fonts/inconsolata.otf')
+	g.newFont('assets/fonts/Inconsolata.otf')
 	--[[
 	local ok, font = pcall(g.newFont,config.font,size)
 	if ok then 

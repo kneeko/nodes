@@ -1,5 +1,5 @@
 ViewportController = class{
-	init = function(self, v, step, scale, interaxial)
+	init = function(self, v, step, stretch, interaxial)
 
 		local identifier = Identifier()
 		self._identifier = identifier
@@ -7,7 +7,7 @@ ViewportController = class{
 		print('Created a viewport with id: ' .. identifier:get())
 
 		local ww, wh = lg.getWidth(), lg.getHeight()
-		local w = ww * scale
+		local w = ww * stretch
 		local h = wh
 
 		local bound = {0, w, 0, h}
@@ -19,6 +19,7 @@ ViewportController = class{
 		self.angle = 0
 
 		-- v is the number of viewports, i would be better off now having this as locked in stone...
+		self.total = v
 		self.camera = Camera(v)
 		self.canvas = lg.newCanvas(w, h)
 		self.timer = 0
@@ -36,15 +37,34 @@ ViewportController = class{
 		--self.position[2] = math.sin(self.timer) * radius
 		--self.position[3] = 0.75 + 0.25 * math.sin(self.timer * 3)
 
-		local camera = self.camera
-		local l, r, t, b = unpack(self.bound)
-		local w, h  = r - l, b - t
-		local x, y, z = unpack(self.position)
+		local position = self.position
+		local x, y, z = unpack(position)
+		
+		-- update the bound
+		local bound = self.bound
+		local w, h = lg.getWidth(), lg.getHeight()
 
-		-- hmm, how does this get positioned?
-		-- this affects the actual world position stuff, so don't change this per camera...
-		local ox = lg.getWidth() * 0.5
-		local oy = lg.getHeight() * 0.5
+		-- scale the viewport bound by the reciprocal of the zoom
+		-- in order to cull at the canvas edge
+		local reciprocal = 1 / z
+		local total = self.total
+		local length = w * 0.5 * (1 / total)
+		local height = h * 0.5
+
+		local l = length - length * reciprocal
+		local r = length + length * reciprocal
+		local t = height - height * reciprocal
+		local b = height + height * reciprocal
+
+		bound[1] = l
+		bound[2] = r
+		bound[3] = t
+		bound[4] = b
+
+		-- update the camera position
+		local camera = self.camera
+		local ox = w * 0.5
+		local oy = h * 0.5
 		local angle = self.angle
 		camera:set(x + ox, y + oy, z)
 		camera:rotate(angle)
@@ -80,6 +100,9 @@ ViewportController = class{
 		lg.draw(canvas, step)
 		lg.setBlendMode('alpha')
 
+		local status = position[1] .. ', ' .. bound[1]
+		lg.print(status, 15, 60)
+
 	end,
 
 	prepare = function(self, scene)
@@ -97,10 +120,24 @@ ViewportController = class{
 	end,
 
 	translate = function(self, dx, dy, dz)
+
 		local position = self.position
-		position[1] = dx and position[1] + dx or position[1]
-		position[2] = dy and position[2] + dy or position[2]
-		position[3] = dz and position[3] + dz or position[3]
+		local reciprocal = 1 / position[3]
+
+		-- do some processing on these values
+		-- and also, once the manager tells us to lock (no active inputs)
+		-- move back within soft bounds
+		-- never move past hard bounds
+
+		position[1] = (dx) and (position[1] + dx * reciprocal) or (position[1])
+		position[2] = (dy) and (position[2] + dy * reciprocal) or (position[2])
+		position[3] = (dz) and (position[3] + dz * reciprocal) or (position[3])
+
+		-- temp hard caps
+		position[3] = math.max(position[3], 0.4)
+		position[3] = math.min(position[3], 2)
+
+
 	end,
 
 	rotate = function(self, dr)

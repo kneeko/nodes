@@ -19,9 +19,16 @@ ViewportManager = class{
 		-- experimental camera movement
 		self.panning = false
 		self.zooming = false
+
+		local controller = Controller()
+		self.controller = controller
+
 	end,
 
 	update = function(self, dt)
+
+		local controller = self.controller
+		controller:update(dt)
 
 		local input = self.input or {}
 		local ix, iy = unpack(input)
@@ -48,6 +55,13 @@ ViewportManager = class{
 			dr = dr * 0.005
 		end
 
+		local controller = self.controller
+		local cx, cy, cz = unpack(controller.interpolated)
+
+		-- should the viewport have a limiter built in?
+		-- that makes sense I guess
+
+
 		local viewports = self.viewports
 		local scene = self.scene
 		for i = 1, #viewports do
@@ -55,9 +69,9 @@ ViewportManager = class{
 			-- TODO fix the angled translation
 			viewport:rotate(dr)
 			local angle = viewport.angle
-			local x = dx-- * math.cos(angle) + dy * math.sin(angle)
-			local y = dy-- * math.sin(angle) + dy * math.cos(angle)
-			local z = dz
+			local x = cx--dx-- * math.cos(angle) + dy * math.sin(angle)
+			local y = cy--dy-- * math.sin(angle) + dy * math.cos(angle)
+			local z = cz + dz
 			viewport:translate(x, y, z)
 			viewport:update(dt)
 			viewport:prepare(scene)
@@ -65,11 +79,17 @@ ViewportManager = class{
 	end,
 
 	draw = function(self)
+
+
 		local scene = self.scene
 		local viewports = self.viewports
 		for i = 1, #viewports do
 			viewports[i]:draw(scene)
 		end
+
+		local controller = self.controller
+		controller:draw()
+
 	end,
 
 	set = function(self, n)
@@ -94,6 +114,14 @@ ViewportManager = class{
 	end,
 
 	inputpressed = function(self, ...)
+
+		local controller = self.controller
+		controller:inputpressed(...)
+
+		-- we shouldn't pass any input to the scene until
+		-- we know that the controller doesn't mind
+		-- kthanx
+
 		-- maybe pass this onto the object manager? here for each viewport?
 		local scene = self.scene
 		local viewports = self.viewports
@@ -115,6 +143,10 @@ ViewportManager = class{
 	end,
 
 	inputreleased = function(self, ...)
+
+		local controller = self.controller
+		controller:inputreleased(...)
+
 		-- maybe pass this onto the object manager? here for each viewport?
 		local scene = self.scene
 		local viewports = self.viewports

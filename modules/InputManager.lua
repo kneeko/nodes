@@ -92,7 +92,6 @@ InputManager = class{
 
 	end,
 
-	-- not sure atm what i would use this for?
 	update = function(self, dt)
 	end,
 
@@ -102,7 +101,7 @@ InputManager = class{
 		local pressure = 1
 
 		self:add_source(id, 'mouse')
-		local source = self:get_source(id)
+		local source, active = self:get_source(id)
 
 		self:dispatch('inputpressed', 'input', x, y, id, pressure, source)
 
@@ -123,7 +122,7 @@ InputManager = class{
 		local x, y = self:to_screen(x, y)
 
 		self:add_source(id, 'touch')
-		local source = self:get_source(id)
+		local source, active = self:get_source(id)
 
 		self:dispatch('inputpressed', 'input', x, y, id, pressure, source)
 
@@ -184,7 +183,8 @@ InputManager = class{
 					local tid, tx, ty, pressure = touch.getTouch(n)
 					if tid == id then
 						local x, y = self:to_screen(tx, ty)
-						return x, y, pressure
+						local active = true
+						return x, y, pressure, active
 					end
 				end
 			end
@@ -193,7 +193,9 @@ InputManager = class{
 
 			source = function()
 				local x, y = love.mouse.getPosition()
-				return x, y, 1
+				local active = love.mouse.isDown(id)
+				local pressure = 1
+				return x, y, pressure, active
 			end
 
 		end

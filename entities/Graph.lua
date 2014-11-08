@@ -21,7 +21,7 @@ Graph = class{
 		-- parameters for the grid of triangles that will be made
 		-- step is the distance between each column, but not row
 		local step = 90
-		local rows = 6
+		local rows = 12
 		local cols = 8
 		local convex = true
 

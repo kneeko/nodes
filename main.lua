@@ -10,6 +10,7 @@ function love.load()
 
 	lg.setBackgroundColor(7, 54, 66)
 	lg.setLineWidth(1)
+	input = InputManager()
 	manager = ObjectManager()
 	viewport = ViewportManager(manager)
 
@@ -18,11 +19,7 @@ function love.load()
 	-- starts a thread with a network connection
 	client = ClientManager()
 
-
-
 	-- test netcode?
-
-	input = InputManager()
 	input:register(viewport, {'input', 'keyboard'})
 	input:register(client, {'keyboard'})
 
@@ -34,6 +31,7 @@ function love.load()
 end
 
 function love.update(dt)
+	input:update(dt)
 	manager:update(dt)
 	viewport:update(dt)
 end
@@ -43,19 +41,23 @@ function love.draw()
 end
 
 function love.mousepressed(x, y, button)
-	input:mousepressed(x, y, button)
+	if not love.touch then
+		input:mousepressed(x, y, button)
+	end
 end
 
 function love.mousereleased(x, y, button)
-	input:mousereleased(x, y, button)
+	if not love.touch then
+		input:mousereleased(x, y, button)
+	end
 end
 
 function love.touchpressed(id, x, y, pressure)
-	--input:touchpressed(id, x, y, pressure)
+	input:touchpressed(id, x, y, pressure)
 end
 
 function love.touchreleased(id, x, y, pressure)
-	--input:touchreleased(id, x, y, pressure)
+	input:touchreleased(id, x, y, pressure)
 end
 
 function love.keypressed(key, code)

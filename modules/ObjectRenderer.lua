@@ -23,6 +23,7 @@ ObjectRenderer = class{
 		local vl, vr, vt, vb = unpack(bound)
 
 		-- transform the bound to worldspace using camera position
+		-- todo expand as camera zoom changes?
 		local cl = vl + cx
 		local cr = vr + cx
 		local ct = vt + cy
@@ -82,16 +83,21 @@ ObjectRenderer = class{
 				object:draw(object:context(projection))
 			end
 			if object._type == 'node' then
-				object:debug(projection)
+				--object:debug(projection)
 			end
 			count = count + 1
 		end
 
-		-- draw viewport outline
+		-- draw viewport outline for debugging
 		local x, y, z = unpack(camera)
 		local l, r, t, b = unpack(bound)
+		local inset = -1
+		local dx = l + x + inset
+		local dy = t + y + inset
+		local dw = r - l - inset*2
+		local dh = b - t - inset*2
 		lg.setColor(255, 255, 255, 100)
-		lg.rectangle('line', x - 1, y - 1, r - l + 2, b - t + 2)
+		--lg.rectangle('line', dx, dy, dw, dh)
 
 	end,
 }
