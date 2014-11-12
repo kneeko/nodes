@@ -1,16 +1,19 @@
 ObjectManager = class{
-	init = function(self)
+	init = function(self, client)
 
 		local available = {}
 		local objects = {}
 		local sorter = ObjectSorter(objects)
 		local renderer = ObjectRenderer(objects, sorter)
+		local transmitter = Transmitter(client)
 		local identifier = Identifier()
 
+		self.client = client
 		self.available = available
 		self.objects = objects
 		self.sorter = sorter
 		self.renderer = renderer
+		self.transmitter = transmitter
 		self.index = {}
 		self._identifier = identifier
 
@@ -19,6 +22,9 @@ ObjectManager = class{
 	end,
 
 	update = function(self, dt)
+
+		local client = self.client
+		client:update(dt)
 
 		local objects = self.objects
 		local sorter = self.sorter
@@ -33,8 +39,12 @@ ObjectManager = class{
 				if object.compute then
 					object:compute()
 				end
+				if object._listening then
+					object:verify()
+				end
 				-- do I need to call this every frame?
-				sorter:move(key)
+				-- hopefully not...
+				--sorter:move(key)
 			end
 		end
 
@@ -88,6 +98,7 @@ ObjectManager = class{
 		local objects = self.objects
 		local sorter = self.sorter
 		local available = self.available
+		local transmitter = self.transmitter
 		local heap = self:get() or {}
 		local identifier = self._identifier:get()
 
@@ -134,6 +145,7 @@ ObjectManager = class{
 		end
 
 		sorter:insert(key)
+		transmitter:register(key, object)
 
 		return key
 	end,
@@ -143,6 +155,7 @@ ObjectManager = class{
 		local objects = self.objects
 		local available = self.available
 		local sorter = self.sorter
+		local transmitter = self.transmitter
 		local index = self.index
 		local heap = self:get()
 		local object = objects[key]
@@ -157,6 +170,7 @@ ObjectManager = class{
 				end
 			end
 			sorter:remove(key)
+			transmitter:release(key)
 			available[#available + 1] = key
 			objects[key] = nil
 		end

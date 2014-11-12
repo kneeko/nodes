@@ -11,9 +11,7 @@ InputManager = class{
 
 		self.width = width
 		self.height = height
-
-
-
+		
 	end,
 
 	-- add or modify this input destination profile

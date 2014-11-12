@@ -8,8 +8,23 @@ Tile = class{
 
 		self:refresh()
 
+		if math.random() > 0.98 then
+			--Token(self)
+		end
+
+		local alpha = 140 + 30 * math.random()
+		local color = {42, 161, 152, 120 + 80 * math.random()}
+		self.alpha = alpha
+		self.color = color
+
+		self.includes = {Listener}
+
+		self.marked = false
+
 
 		getManager():register(self)
+
+		self:listen('marked')
 
 	end,
 
@@ -22,28 +37,21 @@ Tile = class{
 		local x, y = unpack(position)
 
 		local nodes = self.nodes
-		local points = {}
-		local inset = 0
-		for i = 1, #nodes do
-			local position = nodes[i].position
-			local nx = position[1]
-			local ny = position[2]
-			points[#points + 1] = x*inset + nx*(1 - inset)
-			points[#points + 1] = y*inset + ny*(1 - inset)
-		end
+		local points = self.points
 
-		lg.setColor(0, 43, 54, 80)
+		-- why are some tiles being drawn twice?
 
-		if self.claimed then
-			lg.setColor(20, 93, 54, 180)
-		end			
-
+		local color = self.color
+		local alpha = self.alpha
 		if self.marked then
-			lg.setColor(190, 80, 10, 160)
+			color = {255, 149, 0, alpha}
 		end
 
+		lg.setColor(color)
 		lg.polygon('fill', points)
-		lg.setColor(255, 255, 255, 100)
+		--lg.setColor(255, 255, 255, 100)
+		lg.setColor(0, 43, 54)
+		lg.setColor(255, 255, 255, 50)
 		lg.polygon('line', points)
 
 		lg.setColor(101, 123, 131)
@@ -59,6 +67,7 @@ Tile = class{
 
 		if switch then
 			self.marked = true
+			self._graph:bid(self)
 		else
 			self.marked = false
 		end
@@ -67,17 +76,24 @@ Tile = class{
 	refresh = function(self)
 
 		local nodes = self.nodes
+		local points = self.points or {}
 
 		-- this needs to happen whenever the node set is changed
 		-- this doesn't solve when things are positioned differently
 		-- so i really cannot let containers behave this way
 
+		-- this doesn't work right now!
+		local inset = 0
+
 		local cx, cy
 		local left, right, top, bottom
 		for i = 1, #nodes do
-			local position = nodes[i].position
-			local x = position[1]
-			local y = position[2]
+
+			local x, y = unpack(nodes[i].position)
+
+			points[i*2 - 1] = x*(1 - inset)
+			points[i*2] = y*(1 - inset)
+
 			cx = (cx) and (cx + (1 / #nodes) * x) or ((1 / #nodes) * x)
 			cy = (cy) and (cy + (1 / #nodes) * y) or ((1 / #nodes) * y)
 
@@ -85,6 +101,7 @@ Tile = class{
 			right = (right) and (math.max(right, x)) or (x)
 			top = (top) and (math.min(top, y)) or (y)
 			bottom = (bottom) and (math.max(bottom, y)) or (y)
+			
 		end
 
 		local w = right - left
@@ -98,5 +115,8 @@ Tile = class{
 		self.size = {w, h}
 		self.origin = {ox, oy}
 		self.scale = {sx, sy}
+
+		self.points = points
+
 	end,
 }

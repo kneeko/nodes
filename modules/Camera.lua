@@ -16,12 +16,6 @@ Camera = class{
 		self.h = lg.getHeight()
 	end,
 
-	draw = function(self, f)
-		self:attach()
-		f()
-		self:detach()
-	end,
-
 	attach = function(self)
 	
 		local x, y, z = self.x, self.y, self.z
@@ -94,15 +88,25 @@ Camera = class{
 	project = function(self, ix, iy)
 
 		-- todo make this handle rotation correctly
+
 		local x, y, z = self.x, self.y, self.z
 		local w, h = self.w, self.h
 		local r = self.r
+
 		local cos = math.cos(-r)
 		local sin = math.sin(-r)
-		local px = (ix - w*0.5) / z
-		local py = (iy - h*0.5) / z
-		px = px*cos - py*sin
-		py = py*cos - px*sin
+
+		-- its almost like this happens in the wrong order...
+
+		local tx = (ix - w*0.5) / z
+		local ty = (iy - h*0.5) / z
+
+		--px = px*cos + py*sin
+		--py = py*cos + px*sin
+
+		local px = tx*cos + ty*sin
+		local py = ty*cos + tx*sin
+
 		px = px + x
 		py = py + y
 

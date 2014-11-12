@@ -9,10 +9,7 @@ ClientManager = class{
 		self.id = Identity()
 
 		self.connected = false
-		--self:connect()
-
-
-		getManager():register(self)
+		self:connect()
 
 	end,
 
@@ -60,6 +57,13 @@ ClientManager = class{
 
 		local connected = self.connected
 		if connected then
+
+			-- package message for transmission
+			-- what might a message be, an arbitrary table?
+			
+			
+
+
 
 			local channels = self.channels
 			local outbound = channels.outbound

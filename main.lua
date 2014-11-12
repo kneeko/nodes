@@ -10,14 +10,17 @@ function love.load()
 
 	lg.setBackgroundColor(7, 54, 66)
 	lg.setLineWidth(1)
+	lg.setLineStyle('smooth')
 	input = InputManager()
-	manager = ObjectManager()
+	client = ClientManager()
+	manager = ObjectManager(client)
 	viewport = ViewportManager(manager)
 
 	local graph = Graph()
 
+	--Unit()
+
 	-- starts a thread with a network connection
-	client = ClientManager()
 
 	-- test netcode?
 	input:register(viewport, {'input', 'keyboard'})

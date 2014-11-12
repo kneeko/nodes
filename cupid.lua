@@ -15,7 +15,7 @@ local config = {
 	enable_console = true,
 	console_key = '`',
 	console_override_print = true,
-	console_height = 0.33,
+	console_height = 0.2,
 	console_key_repeat = true,
 	console_start_open = true,
 

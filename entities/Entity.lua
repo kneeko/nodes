@@ -34,7 +34,9 @@ Entity = class{
 
 		-- changes the relationship between really far and really close objects
 		--local reciprocal = math.log(1 / z) + 1
-		local reciprocal = 1 / z
+		-- maybe an object can override if it is projected?
+		local overrides = self.overrides
+		local reciprocal = overrides and overrides.parallax or 1 / z
 
 		if positioning == 'absolute' then
 			projection[1] = x + cx - cx * reciprocal
@@ -206,8 +208,8 @@ Entity = class{
 			local edges = bound.edges
 			local polygon = bound.polygon
 			local circle = bound.circle
-			local fudging = self.fudging or 1
 			local x, y, z = unpack(projection)
+			local fudging = self.fudging or 1
 			local w, h = edges[2] - edges[1], edges[4] - edges[3]
 
 			-- translate the points to the projection
@@ -227,7 +229,6 @@ Entity = class{
 			lg.circle('line', x + cx, y + cy, r)
 			lg.setColor(255, 255, 255, 155)
 			lg.circle('line', x + cx, y + cy, r * fudging)
-
 
 			--lg.print(tostring(self.type), x + 10, y - 7)
 
@@ -249,7 +250,7 @@ Entity = class{
 
 		if projection then
 
-			local px, py, _ = unpack(projection)
+			local px, py, pz = unpack(projection)
 			local bound = self.bound
 			local fudging = self.fudging or 1
 
@@ -296,7 +297,7 @@ Entity = class{
 	end,
 
 	destroy = function(self)
-		manager:release(self.key)
+		getManager():release(self._key)
 	end,
 }
 

@@ -3,24 +3,24 @@ ViewportManager = class{
 
 		self.scene = scene
 
+		-- todo: make multiple viewports coherent
 		local viewports = {}
 		local v = n or 1
 		local interaxial = -100
 		for i = 1, v do
 			local step = (i - 1) / v
 			local w = 1 / v
-			viewports[#viewports + 1] = ViewportController(v, step, w, interaxial)
+			viewports[#viewports + 1] = Viewport(v, step, w, interaxial)
 		end
 		self.viewports = viewports
 
 		-- used for reinit on resize
 		self.n = n
 
-		-- experimental camera movement
-		self.panning = false
+		-- development camera zooming
 		self.zooming = false
 
-		local controller = Controller()
+		local controller = ViewportController(scene, viewports)
 		self.controller = controller
 
 	end,
@@ -30,6 +30,9 @@ ViewportManager = class{
 		local controller = self.controller
 		controller:update(dt)
 
+		-- todo
+		-- migrate these dev controls into viewportcontroller
+
 		local input = self.input or {}
 		local ix, iy = unpack(input)
 		local mx, my = lm.getPosition()
@@ -38,7 +41,7 @@ ViewportManager = class{
 
 		local panning = self.panning
 		local rotating = self.rotating
-		local zooming = self.zooming
+		local zooming = self.zooming and lm.isDown('l')
 
 		if panning then
 			dx = ix and ix - mx or 0
@@ -61,25 +64,37 @@ ViewportManager = class{
 		-- should the viewport have a limiter built in?
 		-- that makes sense I guess
 
+		-- send locks and unlocks?
+
 
 		local viewports = self.viewports
 		local scene = self.scene
 		for i = 1, #viewports do
-			local viewport = viewports[i]
 			-- TODO fix the angled translation
-			viewport:rotate(dr)
-			local angle = viewport.angle
-			local x = cx--dx-- * math.cos(angle) + dy * math.sin(angle)
-			local y = cy--dy-- * math.sin(angle) + dy * math.cos(angle)
+			--local x = cx-- + dx-- * math.cos(angle) + dy * math.sin(angle)
+			--local y = cy-- + dy-- * math.sin(angle) + dy * math.cos(angle)
+			--local z = cz-- + dz
+
+			local x = cx
+			local y = cy
 			local z = cz + dz
-			viewport:translate(x, y, z)
+
+			-- apply transformations to viewport
+			local viewport = viewports[i]
+			viewport:translate(x, y)
+			viewport:zoom(z)
+			viewport:rotate(dr)
+
+			-- update the viewport bound and position using the limiter
 			viewport:update(dt)
+			
+			-- prepare projections of scene objects for drawing
 			viewport:prepare(scene)
+
 		end
 	end,
 
 	draw = function(self)
-
 
 		local scene = self.scene
 		local viewports = self.viewports
@@ -87,8 +102,9 @@ ViewportManager = class{
 			viewports[i]:draw(scene)
 		end
 
+		-- controller debug
 		local controller = self.controller
-		controller:draw()
+		--controller:draw()
 
 	end,
 
@@ -114,84 +130,27 @@ ViewportManager = class{
 	end,
 
 	inputpressed = function(self, ...)
-
 		local controller = self.controller
 		controller:inputpressed(...)
-
-		-- we shouldn't pass any input to the scene until
-		-- we know that the controller doesn't mind
-		-- kthanx
-
-		-- maybe pass this onto the object manager? here for each viewport?
-		local scene = self.scene
-		local viewports = self.viewports
-		local x, y, id, pressure, source = ...
-
-		for i = 1, #viewports do
-
-			local viewport = viewports[i]
-			local identifier = viewport._identifier:get()
-			local camera = viewport.camera
-			local px, py = camera:project(x, y)
-
-			-- todo, reference the id to decide what this should return
-			-- todo, handle this part in the input manager
-
-			scene:inputpressed(identifier, px, py, id, source)
-		end
-
 	end,
 
 	inputreleased = function(self, ...)
-
 		local controller = self.controller
 		controller:inputreleased(...)
-
-		-- maybe pass this onto the object manager? here for each viewport?
-		local scene = self.scene
-		local viewports = self.viewports
-		local x, y, id, pressure = ...
-
-		for i = 1, #viewports do
-
-			local viewport = viewports[i]
-			local identifier = viewport._identifier:get()
-			local camera = viewport.camera
-			local px, py = camera:project(x, y)
-
-			-- todo, reference the id to decide what this should return
-			-- todo, handle this part in the input manager
-
-			scene:inputreleased(identifier, px, py, id, pressure)
-		end
 	end,
 
 	keypressed = function(self, key, code)
-		if key == ' ' then
-			self.panning = true
-		end
 		if key == 'lctrl' then
 			self.zooming = true
 		end
-		if key == 'lshift' then
-			--self.rotating = true
-		end
-
 		if tonumber(key) then
 			self:set(tonumber(key))
 		end
-
 	end,
 
 	keyreleased = function(self, key, code)
-		if key == ' ' then
-			self.panning = false
-		end
 		if key == 'lctrl' then
 			self.zooming = false
-		end
-		if key == 'lshift' then
-			--self.rotating = false
 		end
 	end,
 }

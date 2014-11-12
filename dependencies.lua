@@ -1,7 +1,7 @@
-local callback = function(dir, global, file)
+local callback = function(dir, named, file)
 	local filename = string.gsub(file, '.lua', '')
 	local path = dir .. '/' .. filename
-	if global then
+	if named then
 		_G[filename] = require(path)
 	else
 		require(path)
@@ -11,11 +11,19 @@ end
 local sets = {
 	{
 		dir = 'lib',
-		global = true,
+		named = true,
+		callback = callback,
+	},
+	{
+		dir = 'ai',
 		callback = callback,
 	},
 	{
 		dir = 'net',
+		callback = callback,
+	},
+	{
+		dir = 'behaviours',
 		callback = callback,
 	},
 	{
@@ -34,7 +42,7 @@ local sets = {
 
 return function()
 	for _,set in ipairs(sets) do
-		love.filesystem.getDirectoryItems(set.dir, function(...) set.callback(set.dir, set.global, ...) end)
+		love.filesystem.getDirectoryItems(set.dir, function(...) set.callback(set.dir, set.named, ...) end)
 	end
 	if aliases then
 		aliases()

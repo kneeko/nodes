@@ -82,8 +82,8 @@ ObjectRenderer = class{
 			if object.draw then
 				object:draw(object:context(projection))
 			end
-			if object._type == 'node' then
-				--object:debug(projection)
+			if object._type == 'por' then
+				object:debug(projection)
 			end
 			count = count + 1
 		end
