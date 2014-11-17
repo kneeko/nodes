@@ -2,7 +2,7 @@ Flag = class{
 	init = function(self, parent)
 		self.type = 'flag'
 		-- has n parents
-		self.position = {0, -7, 0.8}
+		self.position = {0, -7, 0.6}
 		self.scale = {1, 1}
 
 		self.height = 0
@@ -37,8 +37,8 @@ Flag = class{
 			local requirement = 32
 			local height = math.min(dy, requirement)
 			self.height = easing.outCubic(height, 0, requirement, requirement)
-			local radius = easing.inCubic(dy, 0, 6, requirement)
-			self.radius = math.min(radius, 6)
+			local radius = easing.inCubic(dy, 0, 4, requirement)
+			self.radius = math.min(radius, 4)
 
 			if self.height >= requirement then
 
@@ -71,17 +71,16 @@ Flag = class{
 
 		local radius = self.radius
 
-
 		lg.setColor(255, 149, 0)
 		lg.circle('fill', x, y - height, radius)
 
-		lg.setColor(255, 255, 255, 130)
+		lg.setColor(255, 255, 255, 150)
 		lg.circle('line', x, y - height, radius)
 		--lg.print(self.label .. ', #' .. #self.tiles, x, y + 10)
 
 	end,
 
-	inputpressed = function(self, identifier, x, y, id, pressure, source)
+	inputpressed = function(self, identifier, x, y, id, pressure, source, project)
 
 		local position = self.position
 
@@ -92,7 +91,7 @@ Flag = class{
 				local sources = self.sources
 				sources[id] = {
 					start = y,
-					source = source,
+					source = project,
 				}
 
 			end

@@ -1,6 +1,7 @@
 -- better name pls
 -- captures input in viewport manager
 -- and passes anything it doesn't use onwards
+-- if there is a drag event active, it would be nice to be able to do viewport shifting with return
 -- 
 ViewportController = class{
 	init = function(self, scene, viewports)
@@ -264,7 +265,7 @@ ViewportController = class{
 		-- pass this values into the viewports control limiter
 		local scene = self.scene
 		local viewports = self.viewports
-		
+
 		local set = function(state, ...)
 			local keys = {...}
 			for i = 1, #viewports do
@@ -285,7 +286,7 @@ ViewportController = class{
 			set('lock', 1, 2)
 		end
 
-		if zooming then
+		if zooming or self.zooming then
 			set('unlock', 3)
 		else
 			set('lock', 3)
@@ -306,7 +307,7 @@ ViewportController = class{
 		local instances = self.instances
 		for _,instance in ipairs(instances) do
 			local id = instance.id
-			--status = status .. tostring(id) .. '\n'
+			status = status .. tostring(id) .. '\n'
 			total = total + 1
 		end
 
@@ -391,10 +392,10 @@ ViewportController = class{
 
 			-- check for an existing instance with this
 			-- id and take it over if it exists
-			local replace
+			local index
 			for i,instance in ipairs(instances) do
 				if instance.id == id then
-					replace = i
+					index = i
 					break
 				end
 			end
@@ -416,11 +417,11 @@ ViewportController = class{
 				elapsed = 0,
 			}
 
-			if not replace then
-				replace = #instances + 1
+			if not index then
+				index = #instances + 1
 			end
 
-			instances[replace] = instance
+			instances[index] = instance
 
 		end
 

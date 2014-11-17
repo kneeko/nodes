@@ -82,7 +82,7 @@ ObjectRenderer = class{
 			if object.draw then
 				object:draw(object:context(projection))
 			end
-			if object._type == 'por' then
+			if object._type == 'rally' then
 				object:debug(projection)
 			end
 			count = count + 1

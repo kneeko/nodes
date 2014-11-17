@@ -15,12 +15,15 @@ Node = class{
 
 		-- listener interfaces with the transmitter for the object manager
 		self.includes = {Listener}
-		self.fudging = 5
+		self.fudging = 3
 
 		self.raise = 0
+
+		-- it would be much more elegant if I had a input event manager
+		-- that could perform lots of diferent operations (drags, etc...)
 		self.sources = {}
 
-		--self.flag = Flag(self)
+		self.flag = Flag(self)
 
 		self.hit = false
 		self.owner = 'none'
@@ -34,22 +37,6 @@ Node = class{
 
 	update = function(self, dt)
 
-		local sources = self.sources
-		for id, source in pairs(sources) do
-			local x, y, pressure = source.source()
-			local dy = (y - source.start) * 0.3
-			dy = math.max(dy, 0)
-			local requirement = 6
-			self.raise = math.min(dy, requirement)
-			if self.raise >= requirement then
-
-			end
-		end
-
-		if not self.hit then
-			self.raise = self.raise - self.raise * dt * 5
-		end
-		
 	end,
 
 	draw = function(self, ...)
@@ -86,6 +73,7 @@ Node = class{
 		lg.circle('line', x, y, 8, 16)
 
 		lg.setColor(101, 123, 131)
+		lg.setColor(255, 255, 255)
 		--lg.print(self.label .. ', #' .. #self.tiles, x, y + 10)
 
 	end,
@@ -100,11 +88,10 @@ Node = class{
 		-- change this name
 			if self:intersecting(identifier, x, y) then
 
-				getManager().objects[self._key]:toggle()
+				--getManager().objects[self._key]:toggle()
 
-				local ports = self.ports
-				for _,port in ipairs(ports) do
-					port:toggle()
+				if not self.flag then
+					self:toggle()
 				end
 
 

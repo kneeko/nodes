@@ -18,18 +18,10 @@ function love.load()
 
 	local graph = Graph()
 
-	--Unit()
-
-	-- starts a thread with a network connection
-
-	-- test netcode?
 	input:register(viewport, {'input', 'keyboard'})
 	input:register(client, {'keyboard'})
 
 	Identifier()
-
-
-	--love.keyboard.setTextInput(true)
 
 end
 

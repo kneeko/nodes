@@ -1,4 +1,5 @@
 Graph = class{
+
 	init = function(self, step)
 
 		-- should be able to pass a seed to this and get the same map!
@@ -18,6 +19,8 @@ Graph = class{
 		self.origin = {0, 0}
 		self.angle = 0
 		self.timer = 0
+
+		self.touches = {}
 
 		self.callbacks = {'inputpressed', 'inputreleased'}
 
@@ -133,27 +136,27 @@ Graph = class{
 							right,
 						}
 
-						if math.random() > 0.2 then
-							local tile = Tile(nodes)
-							tile._graph = self
+						local label = ('%s%s%s'):format(node.label, left.label, right.label)
 
-							local label = ('%s%s%s'):format(node.label, left.label, right.label)
-							tile.label = label
+						--if math.random() > 0.15 then
 
-							tiles[#tiles + 1] = tile
+						local tile = Tile(nodes)
 
-							table.insert(left.tiles, tile)
-							table.insert(right.tiles, tile)
-							table.insert(node.tiles, tile)
-						end
+						tile._graph = self
+						tile.label = label
+
+						table.insert(left.tiles, tile)
+						table.insert(right.tiles, tile)
+						table.insert(node.tiles, tile)
+
+						tiles[#tiles + 1] = tile
+
+						--end
 
 					end
-				end
-
-				
+				end	
 			end
 		end
-
 
 		-- iterate through tiles to find tile neighbors
 		for _,tile in ipairs(tiles) do
@@ -180,59 +183,45 @@ Graph = class{
 
 		end
 
-
-		-- this is insanely slow
-		--[[
-		-- im not even sure ports are needed.....
-		-- iterate through tiles and their nodes to find ports
-		local count = 0
-		local pool = {}
-		for _,tile in ipairs(tiles) do
-			local nodes = tile.nodes
-			local couples = combinations(nodes)
-			for _,pair in ipairs(couples) do
-
-				table.insert(pool, pair)
-
-			end
-		end
-
-		-- pass a func to equate {a, b} with {b, a}
-		local f = function(a, b) 
-
-			local combined = {}
-			for _,v in pairs(a) do
-				table.insert(combined, v)
-			end
-			for _,v in pairs(b) do
-				table.insert(combined, v)
-			end
-			combined = combinations(deduplicate(combined))
-			return #combined == 1
-
-		end
-		deduplicate(pool, f)
-
-		for _,pair in ipairs(pool) do
-			local port = Port(pair)
-			port._graph = self
-
-			count = count + 1
-
-			-- ports are part of the tiles that their nodes are part of, no?
-		end
-
-		print('ports: ' .. count)
-		self.nodes = nodes
-		]]--
-
-		local status = ('Created a node graph with %s tiles, %s, rows, %s cols.'):format(#tiles, rows, cols)
+		local status = ('Created a node graph with %s tiles, %s rows x %s cols.'):format(#tiles, rows, cols)
 		print(status)
+
+		self.tiles = tiles
+		self.nodes = nodes
+
+		local unit = Unit()
+		unit._graph = self
+
+		local unit = Unit()
+		unit._graph = self
 
 		getManager():register(self)
 	end,
 
 	update = function(self, dt)
+
+		local touches = self.touches
+
+		for id,touch in pairs(touches) do
+
+			local identifier = touch.identifier
+			local x, y = touch.source()
+
+			-- todo, spatial hashing
+			local tiles = self.tiles
+			for _,tile in ipairs(tiles) do
+				if tile:intersecting(identifier, x, y) then
+					local polygon = tile.polygon
+					local inside = polygon:contains(x, y)
+					if inside then
+						--tile.marked = not tile.marked
+					end
+				end
+			end
+
+		end
+
+
 	end,
 
 	draw = function(self, ...)
@@ -244,14 +233,29 @@ Graph = class{
 		local graphic = self.graphic
 	end,
 
-	inputpressed = function(self)
+	inputpressed = function(self, identifier, x, y, id, pressure, source, project)
+
 		-- send to relevant nodes?
+		-- check while inputs are down what tiles it might intersect with? hmm...
+
+		-- i need to be able to unique raycast a tile
+		-- without hitting other tiles...
+
+		local touch = {
+			source = project,
+			identifier = identifier,
+		}
+
+		self.touches[id] = touch
+
 	end,
 
-	inputreleased = function(self)
+	inputreleased = function(self, identifier, x, y, id, pressure)
 		-- send to relevant nodes?
 		-- is it possible to have this return keys to hte object manager
 		-- and send it to those as well?
+
+		self.touches[id] = nil
 	end,
 
 	bid = function(self, tile)
@@ -283,9 +287,9 @@ Graph = class{
 			local route = self:path(start, goal)
 
 			if route then
-				for _,entry in ipairs(route) do
-					entry.marked = true
-					for _,node in ipairs(entry.nodes) do
+				for _,tile in ipairs(route) do
+					tile.marked = true
+					for _,node in ipairs(tile.nodes) do
 						node.hit = true
 					end
 				end
@@ -301,11 +305,30 @@ Graph = class{
 	end,
 
 	path = function(self, from, to)
-		-- pass valid test for ownership stuff
-		local tiles = self.tiles
-		local route = astar.path(from, to, tiles)
 
-		return route
+		if from and to then
+			local route = astar.path(from, to)
+			if route then
+
+				return route
+
+			end
+			return
+		end
 
 	end,
+
+	get_tile = function(self, identifier, x, y)
+		local tiles = self.tiles
+		for _,tile in ipairs(tiles) do
+			if tile:intersecting(identifier, x, y) then
+				local polygon = tile.polygon
+				local inside = polygon:contains(x, y)
+				if inside then
+					return tile
+				end
+			end
+		end
+	end,
+	
 }

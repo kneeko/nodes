@@ -41,30 +41,28 @@ function dist ( x1, y1, x2, y2 )
 	return math.sqrt ( math.pow ( x2 - x1, 2 ) + math.pow ( y2 - y1, 2 ) )
 end
 
-function dist_between ( nodeA, nodeB )
+function dist_between(a, b)
 
-	--return dist ( nodeA.x, nodeA.y, nodeB.x, nodeB.y )
-	local ax = nodeA.position[1]
-	local ay = nodeA.position[2]
-	local bx = nodeB.position[1]
-	local by = nodeB.position[2]
+	local ax, ay = unpack(a.position)
+	local bx, by = unpack(b.position)
+
 	return dist(ax, ay, bx, by)
 	
 end
 
-function heuristic_cost_estimate ( nodeA, nodeB )
+function heuristic_cost_estimate(a, b)
 
-	--return dist ( nodeA.x, nodeA.y, nodeB.x, nodeB.y )
-	local ax = nodeA.position[1]
-	local ay = nodeA.position[2]
-	local bx = nodeB.position[1]
-	local by = nodeB.position[2]
+	local ax, ay = unpack(a.position)
+	local bx, by = unpack(b.position)
+
 	return dist(ax, ay, bx, by)
+
 end
 
 function is_valid_node ( node, neighbor )
 
 	return true
+
 end
 
 function lowest_f_score ( set, f_score )
@@ -79,22 +77,22 @@ function lowest_f_score ( set, f_score )
 	return bestNode
 end
 
-function neighbor_nodes ( theNode, nodes )
+function neighbor_nodes(node)
 
-	--[[
 	local neighbors = {}
-	for _, node in ipairs ( nodes ) do
-		if theNode ~= node and is_valid_node ( theNode, node ) then
-			table.insert ( neighbors, node )
+	for _,neighbor in ipairs(node.neighbors) do
+		if not neighbor.marked then
+			table.insert(neighbors, neighbor)
 		end
 	end
-	]]--
-	return theNode.nodes
+	--local neighbors = node.nodes
+	return neighbors
+
 end
 
 function not_in ( set, theNode )
 
-	for _, node in ipairs ( set ) do
+	for _, node in ipairs(set) do
 		if node == theNode then return false end
 	end
 	return true
@@ -102,10 +100,10 @@ end
 
 function remove_node ( set, theNode )
 
-	for i, node in ipairs ( set ) do
+	for i, node in ipairs(set) do
 		if node == theNode then 
-			set [ i ] = set [ #set ]
-			set [ #set ] = nil
+			set[i] = set[#set]
+			set[#set] = nil
 			break
 		end
 	end	
@@ -149,7 +147,8 @@ function a_star ( start, goal, nodes, valid_node_func )
 		remove_node ( openset, current )		
 		table.insert ( closedset, current )
 		
-		local neighbors = current.neighbors
+		--local neighbors = current.neighbors
+		local neighbors = neighbor_nodes(current)
 		for _, neighbor in ipairs ( neighbors ) do 
 			if not_in ( closedset, neighbor ) then
 			

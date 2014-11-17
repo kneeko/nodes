@@ -6,20 +6,21 @@ Tile = class{
 
 		self.nodes = nodes
 
-		self:refresh()
-
-		if math.random() > 0.98 then
-			--Token(self)
-		end
-
-		local alpha = 140 + 30 * math.random()
+		local alpha = 170 + 30 * math.random()
 		local color = {42, 161, 152, 120 + 80 * math.random()}
 		self.alpha = alpha
 		self.color = color
 
+		self:refresh()
+
+		if math.random() > 0.99 then
+			Token(self)
+		end
+
 		self.includes = {Listener}
 
 		self.marked = false
+		self.highlight = false
 
 
 		getManager():register(self)
@@ -49,12 +50,22 @@ Tile = class{
 
 		lg.setColor(color)
 		lg.polygon('fill', points)
+
+		if self.highlight then
+			lg.setColor(255, 255, 255, 50)
+			lg.polygon('fill', points)
+		end
+
 		--lg.setColor(255, 255, 255, 100)
 		lg.setColor(0, 43, 54)
 		lg.setColor(255, 255, 255, 50)
 		lg.polygon('line', points)
 
 		lg.setColor(101, 123, 131)
+
+		--local mesh = self.mesh
+		--lg.setColor(255, 255, 255)
+		--lg.draw(mesh, 0, 0)
 
 	end,
 
@@ -67,7 +78,6 @@ Tile = class{
 
 		if switch then
 			self.marked = true
-			self._graph:bid(self)
 		else
 			self.marked = false
 		end
@@ -78,6 +88,9 @@ Tile = class{
 		local nodes = self.nodes
 		local points = self.points or {}
 
+
+
+
 		-- this needs to happen whenever the node set is changed
 		-- this doesn't solve when things are positioned differently
 		-- so i really cannot let containers behave this way
@@ -87,9 +100,16 @@ Tile = class{
 
 		local cx, cy
 		local left, right, top, bottom
+
+		local color = self.color
+
+		--local vertices = {}
 		for i = 1, #nodes do
 
 			local x, y = unpack(nodes[i].position)
+
+			--local vertex = {x, y, 0, 0, color[1], color[2], color[3], color[4]}
+			--table.insert(vertices, vertex)
 
 			points[i*2 - 1] = x*(1 - inset)
 			points[i*2] = y*(1 - inset)
@@ -117,6 +137,13 @@ Tile = class{
 		self.scale = {sx, sy}
 
 		self.points = points
+
+
+		local polygon = Polygon(unpack(points))
+		self.polygon = polygon
+
+		--local mesh = lg.newMesh(vertices, nil, 'fan')
+		--self.mesh = mesh
 
 	end,
 }

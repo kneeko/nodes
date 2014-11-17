@@ -53,15 +53,10 @@ Viewport = class{
 				end,
 			},
 			[3] = {
-				threshold = {0.35 , 1.5},
-				limit = {0.2, 4},
+				threshold = {0.25 , 1.5},
+				limit = {0.05, 4},
 				filter = function(delta)
-					local z = position[3]
-					--local resistance = (z < 1) and (z * z) or (z / z)
-					--resistance = 1
-					--local filtered = delta * resistance
-					local filtered = delta
-					return filtered
+					return delta
 				end,
 			}
 		}
@@ -147,10 +142,7 @@ Viewport = class{
 		--lg.print(status, 15, 60)
 
 		local limiter = self.limiter
-		limiter:draw()
-
-		lg.print(#self.points)
-
+		--limiter:draw()
 
 	end,
 

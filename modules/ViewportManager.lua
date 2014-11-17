@@ -142,6 +142,7 @@ ViewportManager = class{
 	keypressed = function(self, key, code)
 		if key == 'lctrl' then
 			self.zooming = true
+			self.controller.zooming = true
 		end
 		if tonumber(key) then
 			self:set(tonumber(key))
@@ -151,6 +152,7 @@ ViewportManager = class{
 	keyreleased = function(self, key, code)
 		if key == 'lctrl' then
 			self.zooming = false
+			self.controller.zooming = false
 		end
 	end,
 }
