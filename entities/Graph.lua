@@ -2,8 +2,6 @@ Graph = class{
 
 	init = function(self, step)
 
-		-- should be able to pass a seed to this and get the same map!
-
 		self._type = 'graph'
 
 		local x = 50
@@ -26,9 +24,9 @@ Graph = class{
 
 		-- parameters for the grid of triangles that will be made
 		-- step is the distance between each column, but not row
-		local step = 90
-		local rows = 20
-		local cols = 20
+		local step = 180
+		local rows = 6
+		local cols = 6
 		local convex = true
 
 		-- we only need to calculate these once
@@ -60,6 +58,9 @@ Graph = class{
 				local node = Node(nx, ny)
 				node._graph = self
 				node.label = '(' .. r ..' , ' .. c ..')'
+
+				node.timer = {step*r*2, step*c*2}
+				node.initial = {nx, ny}
 
 				-- store the node in a two dimensional array
 				nodes[r] = nodes[r] or {}
@@ -138,8 +139,6 @@ Graph = class{
 
 						local label = ('%s%s%s'):format(node.label, left.label, right.label)
 
-						--if math.random() > 0.15 then
-
 						local tile = Tile(nodes)
 
 						tile._graph = self
@@ -151,7 +150,20 @@ Graph = class{
 
 						tiles[#tiles + 1] = tile
 
-						--end
+						-- @temp randomly add units
+						if math.random() > 0.4 then
+
+							-- spawn a cat?
+
+							local cat = Cat()
+							cat.parent = tile
+							cat.positioning = 'relative'
+							cat.position[1] = 0
+							cat.position[2] = 0
+
+							tile.cat = cat
+
+						end
 
 					end
 				end	
@@ -175,8 +187,71 @@ Graph = class{
 				end
 			end
 
+			-- make routes between cats
 			for _,neighbor in pairs(neighbors) do
 				pool[#pool + 1] = neighbor
+
+				-- make a connection to neighboring cats
+				local cat = tile.cat
+				local friend = neighbor.cat
+				if cat and friend then
+
+					-- only create this route if one with the same series doesn't already exist
+					local series = {cat, friend}
+
+					-- collect all of the existing routes owned by members of the series
+					local existing = {}
+					for _,node in ipairs(series) do
+						local routes = node.routes or {}
+						for _,route in ipairs(routes) do
+							table.insert(existing, route)
+						end
+					end
+
+					-- only continue if none of those existing routes share the same series contents
+					-- regardless of order, mark as ineligible otherwise
+					local eligible = true
+					for j,route in ipairs(existing) do
+
+						-- each route has a series
+						-- we any of those series match this series's contents
+						-- we want to set unique to false
+						local checked = {}
+						for _,node in ipairs(route.series) do
+							for index,entry in ipairs(series) do
+								if entry == node then
+									checked[index] = true
+								end
+							end
+						end
+
+						-- if every single item in the series is true
+						-- in checked then eligible is false
+						local identical = true
+						for index,entry in ipairs(series) do
+							if not checked[index] then
+								identical = false
+							end
+						end
+
+						if identical and eligible then
+							eligible = false
+						end
+
+					end
+
+					-- this series has not yet been connected
+					-- so make a new route and add it to each member of the series
+					if eligible then
+						local route = Route(series)
+						for _,node in ipairs(series) do
+							local routes = node.routes or {}
+							table.insert(routes, route)
+							node.routes = routes
+						end
+					end
+
+				end
 			end
 
 			tile.neighbors = pool
@@ -189,13 +264,7 @@ Graph = class{
 		self.tiles = tiles
 		self.nodes = nodes
 
-		local unit = Unit()
-		unit._graph = self
-
-		local unit = Unit()
-		unit._graph = self
-
-		getManager():register(self)
+		manager:register(self)
 	end,
 
 	update = function(self, dt)

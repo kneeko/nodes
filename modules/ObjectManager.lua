@@ -58,6 +58,7 @@ ObjectManager = class{
 	end,
 
 	flush = function(self, identifier)
+
 		-- invalidate projection caches for a specific identifier
 		local objects = self.objects
 		local heap = self:get()
@@ -120,34 +121,49 @@ ObjectManager = class{
 
 		-- store the main reference to the object
 		objects[key] = object
+		object._key = key
+		object._manager = self
 
-		-- copy fallback values from entity
-		object:include(Entity:init(key, identifier))
-		object:include(Entity)
+		local initialized = object._initialized
+		if not initialized then
 
-		-- include any requested classes
-		local includes = object.includes or {}
-		for _,include in ipairs(includes) do
-			object:include(include:init())
-			object:include(include)
-		end
+			-- copy fallback values from entity
+			if object.include then
+				object:include(Entity:init(key, identifier))
+				object:include(Entity)
 
-		-- index any requested callbacks
-		-- are these ever going to be something apart from input?
-		-- if so, I could skip this and just register them with that!
-		-- although if I want to do some processing specific to the object manager
-		-- this lets me filter them through that
-		local index = self.index
-		local callbacks = object.callbacks or {}
-		for _,callback in ipairs(callbacks) do
-			index[callback] = index[callback] or {}
-			index[callback][#index[callback] + 1] = key
+				-- include any requested classes
+				local includes = object.includes or {}
+				for _,include in ipairs(includes) do
+					object:include(include:init())
+					object:include(include)
+				end
+			else
+				print('object did not have include method')
+			end
+
+			-- index any requested callbacks
+			-- are these ever going to be something apart from input?
+			-- if so, I could skip this and just register them with that!
+			-- although if I want to do some processing specific to the object manager
+			-- this lets me filter them through that
+			local index = self.index
+			local callbacks = object.callbacks or {}
+			for _,callback in ipairs(callbacks) do
+				index[callback] = index[callback] or {}
+				index[callback][#index[callback] + 1] = key
+			end
+
+			-- if networked
+			--transmitter:register(key, object)
+			object._initialized = true
+
 		end
 
 		sorter:insert(key)
-		transmitter:register(key, object)
 
 		return key
+
 	end,
 
 	release = function(self, key)
@@ -159,7 +175,11 @@ ObjectManager = class{
 		local index = self.index
 		local heap = self:get()
 		local object = objects[key]
+
 		if type(object) == 'table' then
+
+			--print('releasing object ' .. object._type .. ' with key ' .. key)
+
 			local callbacks = object.callbacks or {}
 			for _,callback in ipairs(callbacks) do
 				local keys = index[callback] or {}
@@ -169,10 +189,15 @@ ObjectManager = class{
 					end 
 				end
 			end
+
 			sorter:remove(key)
 			transmitter:release(key)
 			available[#available + 1] = key
+
 			objects[key] = nil
+
+			object = nil
+
 		end
 		
 	end,

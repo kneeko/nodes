@@ -19,6 +19,8 @@ Viewport = class{
 		self.step = step * ww
 		self.position = position
 		self.bound = bound
+		
+		self.angle = (math.pi / 6)
 		self.angle = 0
 
 		-- v is the number of viewports, i would be better off now having this as locked in stone...

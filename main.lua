@@ -1,14 +1,11 @@
 function love.load()
 
+	local bg = {7, 54, 66}
+	love.graphics.setBackgroundColor(bg)
+
 	require('dependencies')()
+	math.randomseed(99)
 
-	-- this isn't ideal
-	-- but it will do until I have a scene manager
-	function getManager()
-		return manager
-	end
-
-	lg.setBackgroundColor(7, 54, 66)
 	lg.setLineWidth(1)
 	lg.setLineStyle('smooth')
 	input = InputManager()
@@ -23,11 +20,15 @@ function love.load()
 
 	Identifier()
 
+	paused = false
+
 end
 
 function love.update(dt)
 	input:update(dt)
-	manager:update(dt)
+	if not paused then
+		manager:update(dt)
+	end
 	viewport:update(dt)
 end
 
@@ -66,6 +67,10 @@ function love.keypressed(key, code)
 	end
 	if key == '-' then
 		manager:pop()
+	end
+
+	if key == ' ' or key == 'p' then
+		paused = not paused
 	end
 
 end

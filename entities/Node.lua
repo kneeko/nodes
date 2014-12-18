@@ -1,5 +1,6 @@
 Node = class{
 	init = function(self, x, y)
+	
 		self._type = 'node'
 		-- has n parents
 		self.position = {x, y, 0.9}
@@ -23,23 +24,31 @@ Node = class{
 		-- that could perform lots of diferent operations (drags, etc...)
 		self.sources = {}
 
-		self.flag = Flag(self)
+		--self.flag = Flag(self)
 
 		self.hit = false
 		self.owner = 'none'
 
-		getManager():register(self)
+		-- this prototype isn't using nodes directly
+		--getManager():register(self)
 
 		-- this has to be called after the includes have been merged
-		self:listen('owner')
+		-- or else this method won't yet exist
+		--self:listen('owner')
 
 	end,
 
 	update = function(self, dt)
 
+		self.timer[1] = self.timer[1] + dt * 3
+		self.timer[2] = self.timer[2] + dt * 2
+		local amplitude = 60
+		self.position[2] = self.initial[2] + math.cos(self.timer[2]) * amplitude
+		self.position[1] = self.initial[1] + math.sin(self.timer[1]) * amplitude
+
 	end,
 
-	draw = function(self, ...)
+	draww = function(self, ...)
 		local position, angle, scale, origin, shear = ...
 		local x, y, z = unpack(position)
 		local ox, oy = unpack(origin)

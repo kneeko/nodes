@@ -1,6 +1,8 @@
 Tile = class{
 	init = function(self, nodes)
 		self._type = 'tile'
+
+		
 		-- is passed references to nodes for its children
 		-- uses their position and order to draw the fill
 
@@ -14,8 +16,10 @@ Tile = class{
 		self:refresh()
 
 		if math.random() > 0.99 then
-			Token(self)
+			--Token(self)
 		end
+
+		-- could use the nodes as its bound check?
 
 		self.includes = {Listener}
 
@@ -23,13 +27,14 @@ Tile = class{
 		self.highlight = false
 
 
-		getManager():register(self)
+		manager:register(self)
 
 		self:listen('marked')
 
 	end,
 
 	update = function(self, dt)
+		self:refresh()
 	end,
 
 	draw = function(self, ...)
@@ -59,6 +64,7 @@ Tile = class{
 		--lg.setColor(255, 255, 255, 100)
 		lg.setColor(0, 43, 54)
 		lg.setColor(255, 255, 255, 50)
+		lg.setColor(89, 152, 152)
 		lg.polygon('line', points)
 
 		lg.setColor(101, 123, 131)

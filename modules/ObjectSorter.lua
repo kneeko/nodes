@@ -7,6 +7,7 @@ ObjectSorter = class{
 	end,
 
 	insert = function(self, key)
+
 		local objects = self.objects
 		local index = self.index
 		local object = objects[key]
@@ -29,10 +30,12 @@ ObjectSorter = class{
 					local start, length = unpack(map[z])
 					for i = start, start + length - 1 do
 						local node = index[stack[i]]
-						local nz, ny, _ = unpack(node)
-						if ny >= y then
-							found = i
-							break
+						if node ~= nil then
+							local nz, ny, _ = unpack(node)
+							if ny >= y then
+								found = i
+								break
+							end
 						end
 					end
 					if not found then
@@ -92,6 +95,8 @@ ObjectSorter = class{
 		local objects = self.objects
 		local index = self.index
 		local object = objects[key]
+
+		-- check that this is a real object
 
 		local x, y, z = unpack(object.position)
 		local iz, iy, ip = unpack(index[key])
@@ -180,38 +185,47 @@ ObjectSorter = class{
 	end,
 
 	remove = function(self, key)
+
 		local objects = self.objects
 		local index = self.index
 		local z, y, p = unpack(index[key])
 		index[key] = nil
 
-		-- remove the key from the drawstack
+		-- find and remove the key from the drawstack
 		local sorted = self.sorted
 		local stack = self.stack
 		local map = self.map
 		local group = map[z]
 		local start, length = unpack(group)
+
+		local index
 		for i = start, start + length - 1 do
 			if stack[i] == key then
-				table.remove(stack, i)
-				group[2] = group[2] - 1
-				if group[2] == 0 then
-					map[z] = nil
+				index = i
+				break
+			end
+		end
+
+		if index then
+
+			-- native table removal moves all other elements down
+			-- this should be ok for around a hundred elements
+			table.remove(stack, index)
+
+			group[2] = group[2] - 1
+			if group[2] == 0 then
+				map[z] = nil
+			end
+
+			-- offset the start position of the groups effected by the removal
+			for gz, group in pairs(map) do
+				if gz < z then
+					group[1] = group[1] - 1
 				end
 			end
+
 		end
 
-		-- offset the start position of the groups effected by the removal
-		for gz, group in pairs(map) do
-			if gz < z then
-				group[1] = group[1] - 1
-			end
-		end
-
-	end,
-
-	get = function(self)
-		return self.stack
 	end,
 
 	traverse = function(t, order)

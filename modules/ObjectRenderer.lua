@@ -6,6 +6,7 @@ ObjectRenderer = class{
 	end,
 
 	prepare = function(self, identifier, camera, bound)
+
 		-- project all the objects here
 		-- determine if they will be culled
 		-- supporting multiple viewports here becomes pretty tedious
@@ -16,7 +17,9 @@ ObjectRenderer = class{
 
 		local objects = self.objects
 		local sorter = self.sorter
-		local stack = sorter:get() or {}
+
+		-- changing this to directly access the sorter seems to solve the problem
+		local stack = sorter.stack or {}
 
 		-- get all the viewports here and then do this in a for loop
 		local cx, cy, cz = unpack(camera)
@@ -36,16 +39,40 @@ ObjectRenderer = class{
 			if object then
 				local visible, projection
 				if object._visible then
-					object:project(identifier, camera, bound)
-					local projection = object.projections[identifier]
-					local edges = object.bound.edges
-					local l, r, t, b = unpack(edges)
-					local x, y, z = unpack(projection)
-					local culled = x + r < cl
-						or x + l > cr
-						or y + t > cb
-						or y + b < ct
-					visible = (not culled) and (z >= 0)
+
+					-- @todo move this function to the entity class
+					-- nico 12/3/2014
+					local f = function(object)
+						object:project(identifier, camera, bound)
+						local projection = object.projections[identifier]
+						if not object.bound then
+							if object.compute then
+								object:compute()
+							end
+						end
+						local edges = object.bound.edges
+						local l, r, t, b = unpack(edges)
+						local x, y, z = unpack(projection)
+						local culled = x + r < cl
+							or x + l > cr
+							or y + t > cb
+							or y + b < ct
+						return (not culled) and (z >= 0)
+					end
+
+					-- @todo create an iterator function for this inside the entity class
+					-- since this can be shared for debug drawing
+					-- nico 12/3/2014
+					local overrides = object.overrides
+					local composite = overrides and overrides.bound or nil
+					if composite then
+						for _,child in ipairs(composite) do
+							visible = (not visible) and f(child) or (visible)
+						end
+					else
+						visible = f(object)
+					end
+					
 				end
 				if visible then
 					queue[identifier][count] = key
@@ -78,14 +105,19 @@ ObjectRenderer = class{
 		local keys = queue[identifier] or {}
 		for _,key in ipairs(keys) do
 			local object = objects[key]
-			local projection = object.projections[identifier]
-			if object.draw then
-				object:draw(object:context(projection))
+			if object then
+				local projection = object.projections[identifier]
+				if object.draw then
+					object:draw(object:context(projection, identifier))
+				end
+				if object._debug then
+					object:debug(identifier)
+				end
+				count = count + 1
+			else
+				local msg = ('a nil with key %s was passed into the drawstack'):format(key, type(object))
+				--print(msg)
 			end
-			if object._type == 'rally' then
-				object:debug(projection)
-			end
-			count = count + 1
 		end
 
 		-- draw viewport outline for debugging

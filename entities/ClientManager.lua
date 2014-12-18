@@ -9,7 +9,7 @@ ClientManager = class{
 		self.id = Identity()
 
 		self.connected = false
-		self:connect()
+		--self:connect()
 
 	end,
 

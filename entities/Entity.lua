@@ -1,7 +1,6 @@
 Entity = class{
-	init = function(self, key, context)
+	init = function(self, context)
 
-		self._key = key
 		self._timestamp = os.time()
 		self._context = context
 		self._queued = false
@@ -78,7 +77,7 @@ Entity = class{
 
 	end,
 
-	context = function(self, projection)
+	context = function(self, projection, identifier)
 
 		-- this isn't a very good solution since it is not very clear what is being passed around
 
@@ -86,7 +85,7 @@ Entity = class{
 		local scale = self.scale
 		local origin = self.origin
 		local shear = self.shear
-		return projection, angle, scale, origin, shear
+		return projection, angle, scale, origin, shear, identifier
 
 	end,
 
@@ -98,6 +97,11 @@ Entity = class{
 
 	-- make bound, (change name of this method)
 	compute = function(self)
+
+		--[[
+			we need a way to check if this bound is still valid
+			and return early if it is
+		]]--
 
 		--[[
 		the bounds this creates are relative to the object's position
@@ -200,46 +204,82 @@ Entity = class{
 
 		self.bound = bound
 
+		return bound
+
 	end,
 
-	debug = function(self, projection, bound)
-		local bound = self.bound
-		if bound then
-			local edges = bound.edges
-			local polygon = bound.polygon
-			local circle = bound.circle
-			local x, y, z = unpack(projection)
-			local fudging = self.fudging or 1
-			local w, h = edges[2] - edges[1], edges[4] - edges[3]
+	-- this needs to use composite bounds
+	-- this is a pretty bad name for this method
+	debug = function(self, identifier)
 
-			-- translate the points to the projection
-			-- this is a hilariously way of doing this
-			local points = map(function(i,v) return v + projection[((i % 2) + 1) % 2 + 1] end, polygon)
+		lg.setLineWidth(1)
 
-			-- draw the collision modes
-			lg.setColor(255, 255, 255)
-			lg.rectangle('line', x + edges[1], y + edges[3], w, h)
-			--lg.polygon('line', unpack(points))
+		-- draws the bound of an object
+		local f = function(object)
+			local bound = object.bound
+			if bound then
+				local projection = object.projections[identifier]
+				if projection then
 
-			-- seperate the circles etc etc
-			-- let this be configured more nicely
-			local cx, cy, r = unpack(circle)
-			local r = r
-			lg.setColor(255, 255, 255)
-			lg.circle('line', x + cx, y + cy, r)
-			lg.setColor(255, 255, 255, 155)
-			lg.circle('line', x + cx, y + cy, r * fudging)
+					local edges = bound.edges
+					local polygon = bound.polygon
+					local circle = bound.circle
+					local x, y, z = unpack(projection)
+					local fudging = object.fudging or 1
+					local w, h = edges[2] - edges[1], edges[4] - edges[3]
 
-			--lg.print(tostring(self.type), x + 10, y - 7)
+					-- translate the points to the projection
+					-- this is a hilariously way of doing this
+					local points = map(function(i,v) return v + projection[((i % 2) + 1) % 2 + 1] end, polygon)
 
-			-- draw origin
-			--lg.setColor(255, 255, 255, 155)
-			--lg.circle('line', x, y, 6)
+					-- draw the collision modes
+					lg.setColor(255, 255, 255, 100)
+					--lg.rectangle('line', x + edges[1], y + edges[3], w, h)
+					lg.polygon('line', unpack(points))
 
+					-- seperate the circles etc etc
+					-- let this be configured more nicely
+					local cx, cy, r = unpack(circle)
+					local r = r
+					lg.setColor(255, 255, 255)
+					--lg.circle('line', x + cx, y + cy, r)
+					lg.setColor(255, 255, 255, 155)
+					--lg.circle('line', x + cx, y + cy, r * fudging)
+
+					--lg.print(tostring(self.type), x + 10, y - 7)
+
+					-- draw origin
+					--lg.setColor(255, 255, 255, 155)
+					--lg.circle('line', x, y, 6)
+
+				end
+
+			end
 		end
+
+
+		-- is there a cleaner way of achieving this?
+		-- how do I abstract this correctly?
+		-- what is common between the debug draw and the cull check?
+
+		local overrides = self.overrides
+		local composite = overrides and overrides.bound or nil
+		if composite then
+			for _,child in ipairs(composite) do
+				f(child)
+			end
+		else
+			f(self)
+		end
+
+		-- everywhere that uses bounds will need to include composite bounds?
+		
 	end,
 
-	-- better name?
+	-- @todo use composite bounds (and possible different joining styles)
+	-- this needs to use composite bounds
+	-- better name, since this doesn't denote that it is a point test
+	-- contains might be better
 	intersecting = function(self, identifier, tx, ty, how)
 
 		-- returns true if x/y is inside of the objects projection/bound
@@ -279,14 +319,17 @@ Entity = class{
 
 				-- test rectangle
 
-
 			elseif how == 'polygon' then
+
+				-- test polygon
+				-- lease efficient
 
 			end
 
-			
+			-- composite? (polygon + circle)
 
-			-- by default use circles to check?
+		
+			-- use circles by default? doesn't make a TON of sense
 
 		end
 
@@ -296,8 +339,35 @@ Entity = class{
 		self.parent = parent
 	end,
 
-	destroy = function(self)
-		getManager():release(self._key)
+	_clone = function(self)
+
+		-- @todo fix this cloning
+		-- so that object properties and methods are correctly transfered
+
+		error('cloning is not implemented')
+		
+		local clone = class.clone(self)
+		clone = class.include(self, clone)
+
+		local status = ('%s'):format(type(clone.update))
+		print(status)
+		if not clone.update then
+			error('update does not exist')
+		end
+
+		--clone._initialized = false
+
+		local key = self._manager:register(clone)
+
+		local status = ('clone %s, self %s'):format(clone._key, self._key)
+		--print(status)
+
+		return clone
+
+	end,
+
+	_destroy = function(self)
+		self._manager:release(self._key)
 	end,
 }
 

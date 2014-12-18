@@ -13,8 +13,8 @@ smooth = function(vertices, r)
 
 	local circle = {}
 	local point = {}
-
 	local smoothed = {}
+
 	for i = 1, #vertices, 2 do
 
 		-- current vertex
@@ -48,6 +48,7 @@ smooth = function(vertices, r)
 
 			-- this is mighty confusing
 			-- what am i doing here?
+			-- this might be the source of my problems...
 			local flip = (diff < 0 and diff > -pi) or (diff > pi and diff < pi*2)
 			local sign = flip and -1 or 1
 
