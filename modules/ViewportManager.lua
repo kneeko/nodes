@@ -70,13 +70,14 @@ ViewportManager = class{
 		local viewports = self.viewports
 		local scene = self.scene
 		for i = 1, #viewports do
+			
 			-- TODO fix the angled translation
 			--local x = cx-- + dx-- * math.cos(angle) + dy * math.sin(angle)
 			--local y = cy-- + dy-- * math.sin(angle) + dy * math.cos(angle)
 			--local z = cz-- + dz
 
-			local x = cx
-			local y = cy
+			local x = cx + dx
+			local y = cy + dy
 			local z = cz + dz
 
 			-- apply transformations to viewport
@@ -140,6 +141,7 @@ ViewportManager = class{
 	end,
 
 	keypressed = function(self, key, code)
+
 		if key == 'lctrl' then
 			self.zooming = true
 			self.controller.zooming = true
@@ -147,6 +149,7 @@ ViewportManager = class{
 		if tonumber(key) then
 			self:set(tonumber(key))
 		end
+		
 	end,
 
 	keyreleased = function(self, key, code)

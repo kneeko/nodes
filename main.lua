@@ -1,24 +1,29 @@
+local input, viewport
+
 function love.load()
 
 	local bg = {7, 54, 66}
 	love.graphics.setBackgroundColor(bg)
 
 	require('dependencies')()
-	math.randomseed(99)
+	math.randomseed(3)
 
 	lg.setLineWidth(1)
 	lg.setLineStyle('smooth')
-	input = InputManager()
+
+	local id = Identity()
+
 	client = ClientManager()
+	client.id = id
+	
+	input = InputManager()
 	manager = ObjectManager(client)
 	viewport = ViewportManager(manager)
 
 	local graph = Graph()
 
-	input:register(viewport, {'input', 'keyboard'})
-	input:register(client, {'keyboard'})
-
-	Identifier()
+	input:register(viewport, 'input', 'keyboard')
+	input:register(client, 'keyboard')
 
 	paused = false
 
@@ -57,6 +62,7 @@ function love.touchreleased(id, x, y, pressure)
 end
 
 function love.keypressed(key, code)
+
 	input:keypressed(key, code)
 	
 	if key == 'escape' then
@@ -69,14 +75,40 @@ function love.keypressed(key, code)
 		manager:pop()
 	end
 
-	if key == ' ' or key == 'p' then
+	if key == ' ' then
 		paused = not paused
+	end
+
+	-- emulate left and right mouse buttons
+	if key == 'lgui' then
+		local x, y = lm.getPosition()
+		love.mousepressed(x, y, 'r')
+	end
+
+	if key == 'lalt' then
+		local x, y = lm.getPosition()
+		love.mousepressed(x, y, 'l')
 	end
 
 end
 
 function love.keyreleased(key, code)
 	input:keyreleased(key, code)
+
+	if key == 'lgui' then
+		local x, y = lm.getPosition()
+		love.mousereleased(x, y, 'r')
+	end
+
+	if key == 'lalt' then
+		local x, y = lm.getPosition()
+		love.mousereleased(x, y, 'l')
+	end
+
+	if key == 'r' then
+		love.load()
+	end
+
 end
 
 function love.resize(w, h)

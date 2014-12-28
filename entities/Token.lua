@@ -18,7 +18,7 @@ Token = class{
 		self.hover = 0
 		self.timer = 0
 
-		getManager():register(self)
+		manager:register(self)
 	end,
 
 	update = function(self, dt)

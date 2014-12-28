@@ -25,8 +25,8 @@ Graph = class{
 		-- parameters for the grid of triangles that will be made
 		-- step is the distance between each column, but not row
 		local step = 180
-		local rows = 6
-		local cols = 6
+		local rows = 5
+		local cols = 5
 		local convex = true
 
 		-- we only need to calculate these once
@@ -160,6 +160,7 @@ Graph = class{
 							cat.positioning = 'relative'
 							cat.position[1] = 0
 							cat.position[2] = 0
+							cat._graph = self
 
 							tile.cat = cat
 
@@ -242,6 +243,10 @@ Graph = class{
 
 					-- this series has not yet been connected
 					-- so make a new route and add it to each member of the series
+
+					-- temp disable so that cats can manage their own routes
+					eligible = false
+
 					if eligible then
 						local route = Route(series)
 						for _,node in ipairs(series) do
@@ -255,6 +260,11 @@ Graph = class{
 			end
 
 			tile.neighbors = pool
+
+			-- temp connect cat nodes
+			if tile.cat then
+				tile.cat:connect(tile)
+			end
 
 		end
 

@@ -13,6 +13,15 @@ Tile = class{
 		self.alpha = alpha
 		self.color = color
 
+
+
+
+		self.boundry = 30
+		self.threshold = 15
+
+
+
+
 		self:refresh()
 
 		if math.random() > 0.99 then
@@ -72,6 +81,22 @@ Tile = class{
 		--local mesh = self.mesh
 		--lg.setColor(255, 255, 255)
 		--lg.draw(mesh, 0, 0)
+
+		local threshold = self.threshold
+		local boundry = self.boundry
+
+		lg.setColor(255, 255, 255, 50)
+
+		local cat = self.cat
+		if cat then
+			lg.setColor(255, 255, 255)
+			--lg.print(cat._key, x - 50, y)
+			lg.setColor(180, 255, 180, 150)
+		end
+
+		--lg.circle('line', x, y, boundry + threshold)
+		--lg.circle('line', x, y, boundry)
+
 
 	end,
 

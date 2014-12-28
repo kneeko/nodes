@@ -19,10 +19,17 @@ Signal = class{
 		self.overrides = {parallax = 1}
 
 		self.distance = 0
-		self.max = 10
+
+		self.capped = false
+		self.cap = 8
+
+		-- todo
+		-- dont use absolute timing to move the signal through a route
+		-- use the distance instead
+		-- bear in mind that the distance could be changing
 
 		self.timer = 0
-		self.duration = 2
+		self.duration = 0.35
 
 		manager:register(self)
 	end,
@@ -47,7 +54,8 @@ Signal = class{
 			if not to then
 				--error(self._key)
 			end
-			to:grow(10)
+
+			to:grow(1)
 
 
 			-- find branches
@@ -82,23 +90,41 @@ Signal = class{
 
 			-- emit a signal to those branches
 			local distance = self.distance
-			local max = self.max
+			local capped = self.capped
+			local cap = self.cap
+
+			local count = 0
+			local carryover = self
+			local replicas = {}
+
 			for _,branch in ipairs(branches) do
-				if distance < max then
+				if (distance < cap) or (not capped) then
+
 					-- since we've arrived at the destination
 					-- our to is now the starting destination
 					-- that should be ignored in the branch
 					local from = to
 					local history = self.history
 					-- maybe pass this signal also?
-					local clones = branch:emit(from, history, self)
-					for _,clone in ipairs(clones) do
-						clone.distance = distance + 1
+					replicas = branch:emit(from, history, carryover)
+
+					-- only reuse self once
+					if #replicas > 0 then
+						carryover = nil
 					end
+
+					for _,replica in ipairs(replicas) do
+						replica.distance = distance + 1
+					end
+
 				end
 			end
 			
-			self:_destroy()
+			-- if nothing used the carryover then we should
+			-- destroy this signal
+			if carryover then
+				self:_destroy()
+			end
 
 		end
 
@@ -133,32 +159,35 @@ Signal = class{
 
 
 			local distance = self.distance
-			local max = self.max
-			local r = 7 - 3 * (distance / max)
+			local max = self.cap
+			local r = 8 - 3 * (distance / max)
 
 			lg.setColor(0, 0, 0, 20)
-			lg.circle('fill', ux, uy + 4, r)
+			lg.circle('fill', ux, uy + 4, r, 32)
 
-			lg.setColor(255, 255, 255, 100)
+			lg.setColor(255, 255, 255, 160, 32)
 			lg.circle('fill', ux, uy, r)
 
+			lg.setColor(255, 255, 255, 100)
+			--lg.circle('line', ux, uy, r * 1.5, 32)
+
 			local history = self.history
-			local s = '[' .. self._key .. ', ' .. self.distance .. '/' .. self.max .. ']\n'
+			local s = '[' .. self._key .. ', ' .. self.distance .. '/' .. self.cap .. ']'
 			local font = lg.getFont()
 			local w, h = font:getWidth(tostring(history)), font:getHeight(tostring(history))
 			for _,member in ipairs(history) do
-				s = s .. member._key .. ' '
+				--s = s .. member._key .. ' '
 			end
 
 			s = s .. '\n' .. tostring(self)
 
-			local lines = 3
+			local lines = 2
 
-			lg.setColor(50, 50, 50)
-			lg.rectangle('fill', ux - 2, uy - 2, w + 4, h*lines + 4)
+			lg.setColor(50, 50, 50, 100)
+			--lg.rectangle('fill', ux - 2, uy - 2, w + 4, h*lines + 4)
 
-			lg.setColor(255, 255, 255)
-			lg.print(s, ux, uy)
+			lg.setColor(255, 255, 255, 200)
+			--lg.print(s, ux, uy)
 
 		end
 
@@ -180,9 +209,13 @@ Signal = class{
 			-- add this starting point to the history
 			-- so that it can be ignored in future signal branches
 			history[#history + 1] = from
-			local cap = 3
 
-			if #history > cap then
+			-- we should avoid going along a sequence of nodes that we've been to before
+			-- rather than just the node itself
+			local cap = 5
+			local capped = self.capped
+
+			if capped and #history > cap then
 				table.remove(history, 1)
 			end
 

@@ -32,19 +32,21 @@ ObjectManager = class{
 		for i = 1, #heap do
 			local key = heap[i]
 			local object = objects[key]
-			if object._active then
-				if object.update then
-					object:update(dt)
+			if object then
+				if object._active then
+					if object.update then
+						object:update(dt)
+					end
+					if object.compute then
+						object:compute()
+					end
+					if object._listening then
+						object:verify()
+					end
+					-- do I need to call this every frame?
+					-- hopefully not...
+					--sorter:move(key)
 				end
-				if object.compute then
-					object:compute()
-				end
-				if object._listening then
-					object:verify()
-				end
-				-- do I need to call this every frame?
-				-- hopefully not...
-				--sorter:move(key)
 			end
 		end
 
@@ -224,25 +226,43 @@ ObjectManager = class{
 	propogate = function(self, method, ...)
 		local objects = self.objects
 		local index = self.index
+
+		local total = 0
+		local map = {}
+
 		if index[method] then
 			for _,key in ipairs(index[method]) do
 				local object = objects[key]
-				if object[method] then
-					object[method](object, ...)
-				else
-					local identifier = self._identifier:get()
-					local err = string.format('[%s] object %s with type "%s" has not defined callback %s.',
-						identifier, object._key, object._type, method)
-					print(err)
+				if object then
+					if object[method] then
+						if object[method](object, ...) then
+							total = total + 1
+							-- it might be nice to know how many hit vs missed?
+							map[object._type] = map[object._type] and map[object._type] + 1 or 1
+						end
+					else
+						local identifier = self._identifier:get()
+						local err = string.format('[%s] object %s with type "%s" has not defined callback %s.',
+							identifier, object._key, object._type, method)
+						print(err)
+					end
 				end
 			end
 		end
+
+		-- the number of objects whose function 'method' returned true
+		return total, map
+
 	end,
 
 	inputpressed = function(self, ...)
 		--local identifier, x, y, button = ...
 		-- how do I keep this viewport agnostic?
-		self:propogate('inputpressed', ...)
+
+		-- todo
+		-- return a value here
+
+		return self:propogate('inputpressed', ...)
 	end,
 
 	inputreleased = function(self, ...)

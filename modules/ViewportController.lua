@@ -2,6 +2,9 @@
 -- captures input in viewport manager
 -- and passes anything it doesn't use onwards
 -- if there is a drag event active, it would be nice to be able to do viewport shifting with return
+-- todo
+-- locking
+-- overthrow?
 -- 
 ViewportController = class{
 	init = function(self, scene, viewports)
@@ -237,7 +240,8 @@ ViewportController = class{
 		end
 
 		-- if zooming, dampen the panning
-		local panning = active_inputs > 1 and not zooming
+		-- todo put the requesite input count somewhere better
+		local panning = (active_inputs > 1 and not zooming) or (self.panning)
 		if panning then
 			-- since our deltas are additive we need
 			-- to normalize them so that panning remains 1:1
@@ -266,6 +270,7 @@ ViewportController = class{
 		local scene = self.scene
 		local viewports = self.viewports
 
+		-- lamba for configuring the limiter on all viewports
 		local set = function(state, ...)
 			local keys = {...}
 			for i = 1, #viewports do
@@ -425,32 +430,37 @@ ViewportController = class{
 
 		end
 
-		-- pass unused events on to scene
+		-- lamba for configuring the limiter on all viewports
+		local viewports = self.viewports
+		local set = function(delta)
+			for i = 1, #viewports do
+				local viewport = viewports[i]
+				local limiter = viewport.limiter
+				limiter:shift(3, delta)
+			end
+		end
 
-		-- conditions:
-		--[[
-	
-		if nothing else is pressed then we can pass this on to scene
-	
-		what makes the most sense in this case, if it were hard coded
-		i should just get the behaviour working and then make it pretty later ;)
+		-- dev zooming
+		if id == 'wu' then
+			set(-0.2)
+		end
 
-		really, if there's no other input we can pass it on
-		and the behaviour that nodes have for being activated will take care of the rest
+		if id == 'wd' then
+			set(0.2)
+		end
 
-		if we start moving or zooming we want to cancel stuff...
-		how can we cancel inputs that
 
-		]]--
-
+		-- what is the criterea for passing the inputs into the scene?
 		local continue = #instances == 1
-
 		if continue then
 
 			-- maybe pass this onto the object manager? here for each viewport?
 			local scene = self.scene
 			local viewports = self.viewports
 			local x, y, id, pressure, source = ...
+
+			local totals = {}
+			local maps = {}
 
 			for i = 1, #viewports do
 
@@ -466,7 +476,58 @@ ViewportController = class{
 					local cx, cy = camera:project(sx, sy)
 					return cx, cy, sp
 				end
-				scene:inputpressed(identifier, px, py, id, pressure, source, project)
+
+				-- todo
+				-- does it make sense to have two seperate callbacks
+				-- or just one which can be passed an arg
+
+				-- if this returns more than a numerical value
+				-- what could it return?
+				-- maybe a map of types and other stuff?
+
+				local total, map = scene:inputpressed(identifier, px, py, id, pressure, source, project)
+				totals[identifier] = total
+				maps[identifier] = map
+
+				-- map contains the number of success flags passed
+				-- organized by object type
+				-- total contains the total number of flags returned
+
+				-- use this to implement one finger panning
+				local panning = total == 0
+				if panning then
+					self.panning = true
+				end
+
+			end
+
+		else
+
+			-- fake release callbacks in order to
+			-- void any actions that have been taken
+			-- this will force all of our code to handle released calls
+
+			local scene = self.scene
+			local viewports = self.viewports
+
+			local voided = {}
+			for id,instance in pairs(instances) do
+				local ix, iy, pressure = source()
+				local voiding = {ix, iy, id, pressure}
+				table.insert(voided, voiding)
+			end
+
+			for i = 1, #viewports do
+
+				local viewport = viewports[i]
+				local identifier = viewport._identifier:get()
+				local camera = viewport.camera
+
+				for _,instance in ipairs(voided) do
+					local x, y, id, pressure = unpack(instance)
+					local px, py = camera:project(x, y)
+					scene:inputreleased(identifier, px, py, id, pressure)
+				end
 
 			end
 
@@ -485,12 +546,13 @@ ViewportController = class{
 			if instance.id == id then
 				--table.remove(instances, i)
 
-
 				instance.active = false
 				-- but after a timer this should end
 				--break
 			end
 		end
+
+		self.panning = false
 
 		-- pass events on to scene
 

@@ -1,17 +1,29 @@
 Route = class{
 	init = function(self, series)
 
-		-- series?
-
+		-- for now we are going to assume routes travel between two nodes only
+		-- even though we could theoretically handle more
+		-- i'm not actually sure what that means in this case
 		local from, to = unpack(series)
+
+		print('created a route')
 
 		-- should these be two way?
 		-- the directionality is useful, until I want to use this to actually draw
 		-- something without overlapping
 
+		-- add self to the node routes list
+		for _,node in ipairs(series) do
+			local routes = node.routes
+			table.insert(routes, self)
+		end
+
 		self._type = 'route'
+		--self._visible = false
 
 		self.position = {0, 0, 0.8}
+		self.size = {10, 10}
+		self.scale = {1, 1}
 
 		self.series = series
 		self.from = from
@@ -54,25 +66,6 @@ Route = class{
 		lg.setColor(255, 80, 150)
 		lg.line(fx, fy, tx, ty)
 
-		local underway = self.underway
-		if underway or true then
-
-			local progress = 0.5
-			local ux = fx + (tx - fx) * progress
-			local uy = fy + (ty - fy) * progress
-
-			lg.setColor(255, 255, 255)
-			--lg.print(self._key, ux, uy)
-
-			local s = ''
-			for _,node in ipairs(self.series) do
-				s = s .. node._key .. ' '
-			end
-
-			lg.print(s, ux, uy)
-
-		end
-
 		lg.setLineWidth(1)
 	
 	end,
@@ -98,19 +91,10 @@ Route = class{
 				-- make this ruleset inherited from
 				-- the node that is being passed through
 
-				--[[
-				if valid and #history > 0 then
-					if history[1] == to then
-						valid = false
-					end
-				end
-				]]--
-
 				if valid then
 					for _,location in ipairs(history) do
 						if location == to then
 							valid = false
-							break
 						end
 					end
 				end
@@ -123,23 +107,34 @@ Route = class{
 			return destinations
 		end
 
+		-- not all nodes in the series are traversable
+		-- so use the lamba above to remove them
 		local destinations = filter(series, from, history) or {}
-
 		local signals = {}
+
 		for index,to in ipairs(destinations) do
 			
-			local signal = signals[index]
-			if not signal then
+			local signal
+
+			-- recycle the source signal
+			if source and index == 1 then
+				signal = source
+			else
 				signal = Signal()
-				table.insert(signals, signal)
 			end
+
+			table.insert(signals, signal)
 
 			signal.max = from.max or signal.max
 
+			-- if using seperate histories for each emit
 			signal.history = {}
 			for k,v in ipairs(history) do
 				signal.history[k] = v
 			end
+
+			-- override seperate histories
+			--signal.history = history
 
 			local series = {from, to}
 			signal:route(series)
@@ -154,31 +149,41 @@ Route = class{
 		self:_destroy()
 	end,
 
-	sever = function(self, source)
+	destroy = function(self, source)
 
 		local series = self.series
-
-		print('severing route with key ' .. self._key .. ' and ' .. #series .. ' connections')
 
 		-- we need to cleanly remove this route from
 		-- all members of its series
 		for _,member in ipairs(series) do
-
-			if member ~= source then
-
-				-- we need to find the index of this route
-				local routes = member.routes
-				for i,route in ipairs(routes) do
-					if route == self then
-						table.remove(routes, i)
-					end
+			local routes = member.routes
+			for i,route in ipairs(routes) do
+				if route == self then
+					table.remove(routes, i)
 				end
-
 			end
-
 		end
 
 		self:_destroy()
+
+	end,
+
+	contains = function(self, ...)
+		local series = self.series
+		local seeking = {...}
+		local total = #seeking
+		local found = {}
+		for index,node in ipairs(seeking) do
+			for i,entry in ipairs(series) do
+				if entry == node then
+					table.insert(found, entry)
+					table.remove(seeking, index)
+					break
+				end
+			end
+		end
+
+		return total == #found
 
 	end,
 

@@ -15,9 +15,10 @@ InputManager = class{
 	end,
 
 	-- add or modify this input destination profile
-	register = function(self, destination, callbacks)
+	register = function(self, destination, ...)
 
 		local destinations = self.destinations
+		local callbacks = {...}
 		local profiles = self.profiles
 		local map = self.map
 

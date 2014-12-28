@@ -33,44 +33,102 @@ Entity = class{
 
 		-- changes the relationship between really far and really close objects
 		--local reciprocal = math.log(1 / z) + 1
-		-- maybe an object can override if it is projected?
-		local overrides = self.overrides
-		local reciprocal = overrides and overrides.parallax or 1 / z
 
-		if positioning == 'absolute' then
+		local overrides = self.overrides
+		-- objects are allowed to override their parallax scrolling speed
+		-- and use their z position solely for depth ordering
+		local reciprocal = overrides and 1 / overrides.parallax or 1 / z
+
+		if positioning == 'absolute' then -- default positioning mode
 			projection[1] = x + cx - cx * reciprocal
 			projection[2] = y + cy - cy * reciprocal
 		elseif positioning == 'relative' then
 			local ox, oy, oz = 0, 0, 0
-			local parent = self.parent
-			if parent then
+
+			local parents = self.parent
+			local parent = parents._type -- all game entities will have a type defined but an array will not
+
+			-- todo
+			-- allow for a barycentric coordinate system to change
+			-- how the projection is weighted between multiple parents
+
+			-- lamba for adding the parent projection to the child projection
+			local apply = function(parent, count)
 				local parent_projection = parent.projections[identifier]
+
+				-- sometimes the child of a parent will be projected
+				-- before the parent has been projected so we need to cache one
+
 				if not parent_projection then
 					parent:project(identifier, camera, viewport)
 					parent_projection = parent.projections[identifier]
 				end
-				ox, oy, oz = unpack(parent_projection)
+
+				-- average the parent projections using the count
+				local px, py = unpack(parent_projection)
+				ox = ox * ((count - 1) / count) + px * (1 / count)
+				oy = oy * ((count - 1) / count) + py * (1 / count)
 			end
-			projection[1] = ox + x + cx - cx * reciprocal
-			projection[2] = oy + y + cy - cy * reciprocal
-		elseif positioning == 'fixed' then
-			projection[1] = cx + x
-			projection[2] = cy + y
-		elseif positioning == 'sticky' then
+
+			local count = 1
+			local total = parents._type and 1 or #parents
+			local singular = parents._type
+			if singular then -- single parent
+				apply(parents, count)
+			else
+				for _,parent in ipairs(parents) do
+					apply(parent, count)
+					count = count + 1
+				end
+			end
+
+
+
+			--[[
+			local parent = self.parent
+			if parent then
+
+				local parent_projection = parent.projections[identifier]
+				-- sometimes the child of a parent will request a projection
+				-- before the parent has been projected so we need to cache one
+				if not parent_projection then
+					parent:project(identifier, camera, viewport)
+					parent_projection = parent.projections[identifier]
+				end
+
+				ox, oy, oz = unpack(parent_projection)
+
+			end
+			]]--
+
+			projection[1] = x + cx - cx * reciprocal + ox
+			projection[2] = y + cy - cy * reciprocal + oy
+		elseif positioning == 'fixed' then -- fixed in viewport coordinate space, no projection
+			projection[1] = x + cx
+			projection[2] = y + cy
+		elseif positioning == 'sticky' then -- fixed in viewport coordinate space but with anchoring
 			local alignment = self.alignment or {}
 			local vl, vr, vt, vb = unpack(viewport)
 			local h, v, ox, oy = unpack(alignment)
+
+			-- h, v are 0 .. 1 ratios applied to the viewport size
+			-- ox, oy are pixel offset units
+
 			h = h or 0
 			v = v or 0
 			ox = ox or 0
 			oy = oy or 0
+
 			local px = vl + (vr - vl) * h
 			local py = vt + (vb - vt) * v
-			projection[1] = cx + x + px + ox
-			projection[2] = cy + x + py + oy
+
+			projection[1] = x + px + ox + cx
+			projection[2] = x + py + oy + cy
 		end
 
-		-- perhaps lets this decide if it is culled?
+		-- todo
+		-- inform when this object is culled here
+		-- since that can be useful for choosing when to remove something
 
 		projections[identifier] = projection
 		self.projections = projections
@@ -235,16 +293,16 @@ Entity = class{
 					-- draw the collision modes
 					lg.setColor(255, 255, 255, 100)
 					--lg.rectangle('line', x + edges[1], y + edges[3], w, h)
-					lg.polygon('line', unpack(points))
+					--lg.polygon('line', unpack(points))
 
 					-- seperate the circles etc etc
 					-- let this be configured more nicely
 					local cx, cy, r = unpack(circle)
 					local r = r
 					lg.setColor(255, 255, 255)
-					--lg.circle('line', x + cx, y + cy, r)
+					lg.circle('line', x + cx, y + cy, r)
 					lg.setColor(255, 255, 255, 155)
-					--lg.circle('line', x + cx, y + cy, r * fudging)
+					lg.circle('line', x + cx, y + cy, r * fudging)
 
 					--lg.print(tostring(self.type), x + 10, y - 7)
 

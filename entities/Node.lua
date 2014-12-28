@@ -30,7 +30,7 @@ Node = class{
 		self.owner = 'none'
 
 		-- this prototype isn't using nodes directly
-		--getManager():register(self)
+		--manager:register(self)
 
 		-- this has to be called after the includes have been merged
 		-- or else this method won't yet exist
@@ -42,9 +42,9 @@ Node = class{
 
 		self.timer[1] = self.timer[1] + dt * 3
 		self.timer[2] = self.timer[2] + dt * 2
-		local amplitude = 60
+		local amplitude = 20
 		self.position[2] = self.initial[2] + math.cos(self.timer[2]) * amplitude
-		self.position[1] = self.initial[1] + math.sin(self.timer[1]) * amplitude
+		--self.position[1] = self.initial[1] + math.sin(self.timer[1]) * amplitude
 
 	end,
 

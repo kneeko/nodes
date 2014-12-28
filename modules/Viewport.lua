@@ -14,7 +14,7 @@ Viewport = class{
 		local h = wh
 
 		local bound = {0, w, 0, h}
-		local position = {step * interaxial, 0, 1}
+		local position = {step * interaxial, 0, 2}
 
 		self.step = step * ww
 		self.position = position
@@ -55,7 +55,7 @@ Viewport = class{
 				end,
 			},
 			[3] = {
-				threshold = {0.25 , 1.5},
+				threshold = {0.25 , 3},
 				limit = {0.05, 4},
 				filter = function(delta)
 					return delta
@@ -167,8 +167,10 @@ Viewport = class{
 
 	zoom = function(self, dz)
 
-		local limiter = self.limiter
-		limiter:shift(3, dz)
+		if dz then
+			local limiter = self.limiter
+			limiter:shift(3, dz)
+		end
 
 	end,
 

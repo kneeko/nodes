@@ -1,3 +1,4 @@
 notes/**
 *.love
 *.sublime-project
+*.sublime-workspace
