@@ -13,9 +13,6 @@ Tile = class{
 		self.alpha = alpha
 		self.color = color
 
-
-
-
 		self.boundry = 30
 		self.threshold = 15
 
@@ -46,7 +43,7 @@ Tile = class{
 		self:refresh()
 	end,
 
-	draw = function(self, ...)
+	draw = function(self, identifier, ...)
 		-- i need to get the position of each node as projected, not just their own position
 		local position = ...
 		local x, y = unpack(position)
@@ -64,11 +61,6 @@ Tile = class{
 
 		lg.setColor(color)
 		lg.polygon('fill', points)
-
-		if self.highlight then
-			lg.setColor(255, 255, 255, 50)
-			lg.polygon('fill', points)
-		end
 
 		--lg.setColor(255, 255, 255, 100)
 		lg.setColor(0, 43, 54)
@@ -94,9 +86,18 @@ Tile = class{
 			lg.setColor(180, 255, 180, 150)
 		end
 
+
 		--lg.circle('line', x, y, boundry + threshold)
 		--lg.circle('line', x, y, boundry)
 
+		local font = lg.getFont()
+		local string = ''
+		if self.terminal then
+			string = '(' .. self.terminal._key .. ')'
+		end
+		local w, h = font:getWidth(string), font:getHeight(string)
+		lg.setColor(255, 255, 255)
+		lg.print(string, x - w*0.5, y - h*0.5 + 35)
 
 	end,
 
@@ -167,7 +168,24 @@ Tile = class{
 		self.origin = {ox, oy}
 		self.scale = {sx, sy}
 
+		--[[
+		local vertices = {}
+		local inset = 20
+		for i = 1, #points, 2 do
+			local x = points[i]
+			local y = points[i + 1]
+			local angle = math.atan2(cy - y, cx - x)
+			local px = x + math.cos(angle) * inset
+			local py = y + math.sin(angle) * inset
+			vertices[#vertices + 1] = px
+			vertices[#vertices + 1] = py
+		end
+
+		self.vertices = vertices
+		]]--
+
 		self.points = points
+		
 
 
 		local polygon = Polygon(unpack(points))

@@ -248,9 +248,52 @@ ViewportController = class{
 			target[1] = dx * (1 / n)
 			target[2] = dy * (1 / n)
 		else
-			-- ignore if only one finger is pressed
-			target[1] = 0
-			target[2] = 0
+			-- ignore if only one finger is pressed and not panning
+			
+			-- we could be scrolling while dragging however
+			local sx, sy = 0, 0
+			local threshold = 0.1
+			local throttle = 0.5
+			local rate = 1200
+			local w, h = lg.getWidth(), lg.getHeight()
+
+			for _,instance in ipairs(instances) do
+				if instance.active then
+					local ix, iy = unpack(instance.position)
+
+					local instance_delta = deltas[instance.id] or {0, 0}
+					local idx, idy = unpack(instance_delta)
+
+					local rx, ry = ix / w, iy / h
+
+
+					if rx > 1 - threshold then
+						sx = sx + rate * dt
+					end
+
+					if rx < threshold then
+						sx = sx - rate * dt
+					end
+
+					if ry > 1 - threshold then
+						sy = sy + rate * dt
+					end
+
+					if ry < threshold then
+						sy = sy - rate * dt
+					end
+
+				end
+			end
+
+			-- todo
+			-- we could be dragging however
+			-- maybe we want to check where our input is
+			-- and possibly scroll around the edges
+
+			target[1] = sx
+			target[2] = sy
+
 		end
 
 		-- to keep zooming snappy, don't ease its value ever
@@ -258,7 +301,7 @@ ViewportController = class{
 
 		-- interpolate to target
 		local interpolated = self.interpolated
-		local snappiness = 24
+		local snappiness = 18
 
 		-- ease the panning deltas so that large dts are less jarring
 		interpolated[1] = interpolated[1] + (target[1] - interpolated[1]) * dt * snappiness

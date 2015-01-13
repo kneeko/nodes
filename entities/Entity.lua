@@ -46,6 +46,11 @@ Entity = class{
 			local ox, oy, oz = 0, 0, 0
 
 			local parents = self.parent
+
+			if not parents then
+				error('entity ' .. self._type .. ' using relative positioning without a parent')
+			end
+
 			local parent = parents._type -- all game entities will have a type defined but an array will not
 
 			-- todo
@@ -143,7 +148,7 @@ Entity = class{
 		local scale = self.scale
 		local origin = self.origin
 		local shear = self.shear
-		return projection, angle, scale, origin, shear, identifier
+		return identifier, projection, angle, scale, origin, shear
 
 	end,
 
@@ -154,7 +159,7 @@ Entity = class{
 	end,
 
 	-- make bound, (change name of this method)
-	compute = function(self)
+	_prepare = function(self)
 
 		--[[
 			we need a way to check if this bound is still valid
@@ -425,7 +430,8 @@ Entity = class{
 	end,
 
 	_destroy = function(self)
-		self._manager:release(self._key)
+		--self._manager:release(self._key)
+		self._manager:release(self)
 	end,
 }
 

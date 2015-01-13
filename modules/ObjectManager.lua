@@ -168,7 +168,10 @@ ObjectManager = class{
 
 	end,
 
-	release = function(self, key)
+	-- another approach is to pass the object itself
+	-- and let this find the key etc
+	-- maybe that is safer?
+	release = function(self, object)
 
 		local objects = self.objects
 		local available = self.available
@@ -176,9 +179,10 @@ ObjectManager = class{
 		local transmitter = self.transmitter
 		local index = self.index
 		local heap = self:get()
-		local object = objects[key]
 
 		if type(object) == 'table' then
+
+			local key = object._key
 
 			--print('releasing object ' .. object._type .. ' with key ' .. key)
 
@@ -198,7 +202,11 @@ ObjectManager = class{
 
 			objects[key] = nil
 
+			-- i don't think this does anything, actually
+			-- but maybe it would be smart to clean up any references this object could contain to another object?
 			object = nil
+
+			print('removed ' .. key)
 
 		end
 		

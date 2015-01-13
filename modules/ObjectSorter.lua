@@ -186,31 +186,47 @@ ObjectSorter = class{
 
 	remove = function(self, key)
 
+		-- this is pretty buggy code
+
+		if not key then
+			print('sorter passed nil key for removal')
+			return
+		end
+
 		local objects = self.objects
 		local index = self.index
-		local z, y, p = unpack(index[key])
-		index[key] = nil
-
-		-- find and remove the key from the drawstack
 		local sorted = self.sorted
 		local stack = self.stack
 		local map = self.map
-		local group = map[z]
-		local start, length = unpack(group)
 
-		local index
-		for i = start, start + length - 1 do
-			if stack[i] == key then
-				index = i
-				break
+		-- we'll look for this value
+		local indice, group, z, y, p
+
+		local entry = index[key]
+		if entry then
+			z, y, p = unpack(entry)
+			index[key] = nil
+
+			-- find and remove the key from the drawstack
+			group = map[z]
+			local start, length = unpack(group)
+
+			local index
+			for i = start, start + length - 1 do
+				if stack[i] == key then
+					indice = i
+					break
+				end
 			end
+		else
+			print('no entry for key ' .. key)
 		end
 
-		if index then
+		if type(indice) == 'number' then
 
 			-- native table removal moves all other elements down
 			-- this should be ok for around a hundred elements
-			table.remove(stack, index)
+			table.remove(stack, indice)
 
 			group[2] = group[2] - 1
 			if group[2] == 0 then
@@ -224,6 +240,8 @@ ObjectSorter = class{
 				end
 			end
 
+		else
+			print('sorter did not find indice for ' .. key)
 		end
 
 	end,

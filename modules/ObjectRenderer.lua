@@ -46,8 +46,10 @@ ObjectRenderer = class{
 						object:project(identifier, camera, bound)
 						local projection = object.projections[identifier]
 						if not object.bound then
-							if object.compute then
-								object:compute()
+							if object.prepare then
+								object:prepare()
+							elseif object._prepare then
+								object:_prepare()
 							end
 						end
 						local edges = object.bound.edges
@@ -65,12 +67,11 @@ ObjectRenderer = class{
 					-- nico 12/3/2014
 					local overrides = object.overrides
 					local composite = overrides and overrides.bound or nil
+					visible = f(object)
 					if composite then
 						for _,child in ipairs(composite) do
 							visible = (not visible) and f(child) or (visible)
 						end
-					else
-						visible = f(object)
 					end
 					
 				end
@@ -102,20 +103,27 @@ ObjectRenderer = class{
 		local objects = self.objects
 		local queue = self.queue
 		local count = 0
+		local drawn = {}
 		local keys = queue[identifier] or {}
 		for _,key in ipairs(keys) do
-			local object = objects[key]
-			if object then
-				local projection = object.projections[identifier]
-				if object.draw then
-					object:draw(object:context(projection, identifier))
+			if not drawn[key] then
+				local object = objects[key]
+				if object then
+					local projection = object.projections[identifier]
+					if object.draw then
+						object:draw(object:context(projection, identifier))
+					end
+					if object._debug then
+						object:debug(identifier)
+					end
+					count = count + 1
+					drawn[key] = true
+				else
+					local msg = ('a nil with key %s was passed into the drawstack'):format(key, type(object))
+					--print(msg)
 				end
-				if object._debug then
-					object:debug(identifier)
-				end
-				count = count + 1
 			else
-				local msg = ('a nil with key %s was passed into the drawstack'):format(key, type(object))
+				local msg = ('key %s was drawn twice'):format(key)
 				--print(msg)
 			end
 		end

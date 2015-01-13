@@ -55,7 +55,7 @@ Signal = class{
 				--error(self._key)
 			end
 
-			to:grow(1)
+			--to:grow(1)
 
 
 			-- find branches
@@ -123,6 +123,7 @@ Signal = class{
 			-- if nothing used the carryover then we should
 			-- destroy this signal
 			if carryover then
+				-- fire?
 				self:_destroy()
 			end
 

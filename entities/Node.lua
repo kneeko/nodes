@@ -1,171 +1,210 @@
+-- a node could know the distance
+-- and have a traverse function that returns a position?
+-- hmmm
+
+-- do i want to support branching on a node?
+-- probably
+
 Node = class{
-	init = function(self, x, y)
-	
+	init = function(self)
+
 		self._type = 'node'
-		-- has n parents
-		self.position = {x, y, 0.9}
-		self.scale = {1, 1}
-		self.size = {16, 16}
-		self.origin = {8, 12}
 
-		self.tiles = {}
-		self.ports = {}
+		local position = {0, 0, 0.6}
+		local scale = {1, 1}
+		local size = {12, 12}
+		local origin = {6, 6}
+		local positioning = 'relative'
 
-		self.overrides = {parallax = 1}
+		--self._debug = true
+		self.fudging = 2
+
+		-- neighbors will always contain to and from
+		-- in no particular order
+		local neighbors = {}
+		self.neighbors = neighbors
+
+		self.rigidity = 15
+
+		-- todo
+		-- convert this to a Route object
+		self.path = {}
+
+		self.position = position
+		self.scale = scale
+		self.origin = origin
+		self.size = size
+		self.positioning = positioning
+
+		self.overrides = {parallax = 1, bound = neighbors}
 		self.callbacks = {'inputpressed', 'inputreleased'}
 
-		-- listener interfaces with the transmitter for the object manager
-		self.includes = {Listener}
-		self.fudging = 3
+		self.width = 2
+		self.radius = 30
 
-		self.raise = 0
-
-		-- it would be much more elegant if I had a input event manager
-		-- that could perform lots of diferent operations (drags, etc...)
-		self.sources = {}
-
-		--self.flag = Flag(self)
-
-		self.hit = false
-		self.owner = 'none'
-
-		-- this prototype isn't using nodes directly
-		--manager:register(self)
-
-		-- this has to be called after the includes have been merged
-		-- or else this method won't yet exist
-		--self:listen('owner')
+		manager:register(self)
 
 	end,
 
 	update = function(self, dt)
 
-		self.timer[1] = self.timer[1] + dt * 3
-		self.timer[2] = self.timer[2] + dt * 2
-		local amplitude = 20
-		self.position[2] = self.initial[2] + math.cos(self.timer[2]) * amplitude
-		--self.position[1] = self.initial[1] + math.sin(self.timer[1]) * amplitude
-
 	end,
 
-	draww = function(self, ...)
-		local position, angle, scale, origin, shear = ...
-		local x, y, z = unpack(position)
-		local ox, oy = unpack(origin)
+	-- do I want an extra function here?
+	-- prepare?
 
-		local raise = self.raise
+	draw = function(self, identifier, ...)
 
-		y = y - raise
+		local projection = ...
+		local x, y = unpack(projection)
 
-		y = y - 4
+		local font = lg.getFont()
+		local string = 'N' .. self._key
+		local w, h = font:getWidth(string), font:getHeight(string)
+		lg.setColor(255, 255, 255, 100)
+		lg.setLineWidth(1)
+		lg.circle('line', x, y, 3)
+		--lg.print(string, x - w*0.5, y - h*0.5 + h)
 
-		lg.setColor(0, 0, 0, 30)
-		lg.circle('fill', x, y + 4, 8)
+		-- i will want to draw a segment here
+		-- rather than entirely to the destination and not at all from the source
+		-- to / from makes sense for this until I start to have multiple destinations...
+		-- well, maybe it is ok either way
+		
+		local progress = 0.5
+		local width = self.width
+		local radius = self.radius
 
-		if self.hit then
-			lg.setColor(255, 149, 0)
-		elseif self.down then
-			lg.setColor(255, 149, 0, 155)
+		lg.setColor(255, 255, 255, 100)
+		lg.setLineWidth(width)
+
+		local vertices = {}
+		local neighbors = self.neighbors
+
+		-- very hacky
+		-- i need a general solution for showing all of the branches to and from this node
+		if #neighbors == 2 then
+			neighbors = {neighbors[1], self, neighbors[2]}
 		else
-			lg.setColor(42, 161, 152)
-			--lg.setColor(38, 139, 210)
+			neighbors = {neighbors[1], self}
 		end
 
-		-- maybe only do this if we are activated?
-		if self.hit then
-			--y = y - 6
-		end
+		-- if we have more than two neighbors, we will need to
+		-- cache the segments for each from .. to pair
 
-		lg.circle('fill', x, y, 8, 16)
+		for i,node in ipairs(neighbors) do
 
-		lg.setColor(255, 255, 255, 130)
-		lg.circle('line', x, y, 8, 16)
+			local node_projection = node.projections[identifier]
+			if node_projection then
+				local nx, ny = unpack(node_projection)
 
-		lg.setColor(101, 123, 131)
-		lg.setColor(255, 255, 255)
-		--lg.print(self.label .. ', #' .. #self.tiles, x, y + 10)
+				-- maybe compute these vertices in update
+				-- and store them like vertices[identifier]?
+				-- the problem is that projections are always going to we prepared after update
+				-- so that makes everything 1 frame late
 
-	end,
-
-	inputpressed = function(self, identifier, x, y, id, pressure, source)
-
-		local position = self.position
-
-		local hit = self.hit
-
-		if tonumber(id) or id == 'l' then 
-		-- change this name
-			if self:intersecting(identifier, x, y) then
-
-				--getManager().objects[self._key]:toggle()
-
-				if not self.flag then
-					self:toggle()
-				end
+				local px = x + (nx - x) * progress
+				local py = y + (ny - y) * progress
 
 
-				-- attempt to start a search
+				vertices[#vertices + 1] = px
+				vertices[#vertices + 1] = py
 
-
-
-				--client:broadcast(self._key)
-
-
-
-				-- add it to the listen table
-				-- eventually there will be an elastic pull to active mechanic here
-				-- for now, do a hard toggle
-
-				--self.down = true
-
-				--[[
-				local sources = self.sources
-				sources[id] = {
-					start = y,
-					source = source,
-				}
-				]]--
-
-				-- listen to the source and get the deltas for raising the node?
+				--lg.line(x, y, px, py)
 			end
 		end
 
+		vertices = smooth(vertices, radius)
+
+		-- map these vertices to allow for smooth interpolation between 0 and 1
+		-- and know the distance so we can decide on a consistant speed
+
+		if #vertices >=4 then
+			lg.line(vertices)
+		end
+
+	end,
+
+	inputpressed = function(self, identifier, x, y, id, pressure, _, source)
+		local hit = self:intersecting(identifier, x, y, 'circle')
+		if hit and id == 'l' then
+
+			--[[
+			local parent = self.parent
+			local terminal = Terminal()
+
+			terminal.parent = parent
+			terminal:drag(source, identifier, id)
+			terminal._graph = self._graph
+			terminal._well = self
+			terminal:connect(parent)
+
+			parent.terminal = terminal
+			return true
+			]]--
+
+			local ping = Ping()
+			ping:visit(self)
+
+		end
+
+		if hit and id == 'r' then
+			
+		end
 	end,
 
 	inputreleased = function(self, identifier, x, y, id, pressure)
 
-		-- just show down state?
-		if self.down then
-			self.down = false
-			-- need to know if this should happen or not
-			-- depending on the number of inputs down still
-			if self:intersecting(identifier, x, y) then
-				--getManager().objects[self._key]:toggle()
-				--self:toggle()
-				--client:broadcast(self._key)
+		local dragging = self.dragging
+		if dragging then
+			if dragging.id == id then
+				self:drop()
 			end
 		end
 
-		local sources = self.sources
-		sources[id] = nil
-
 	end,
 
-	toggle = function(self)
+	add = function(self, node)
 
-		self.hit = not self.hit
+		-- a node could be both in to and neighbors?
+		-- this way i can seperate some parts of my logic
 
-		if self.hit then
-			self.owner = client.id.hash
-			--self._graph:bid(self)
-		else
-			self.owner = 'none'
+		local neighbors = self.neighbors
+		local exists
+		for _,neighbor in ipairs(neighbors) do
+			if neighbor == node then
+				exists = true
+			end
+		end
+		if not exists then
+			table.insert(neighbors, node)
+			-- add this node to the refs?
+		end
+	end,
+
+	remove = function(self, node)
+		local neighbors = self.neighbors
+		for index,neighbor in ipairs(neighbors) do
+			if neighbor == node then
+				table.remove(neighbors, index)
+			end
+		end
+	end,
+
+	destroy = function(self)
+		-- take care of dereferencing self?
+		-- remove self form any place that it is references
+		local neighbors = self.neighbors
+
+		for _,neighbor in ipairs(neighbors) do
+			neighbor:remove(self)
 		end
 
-		local tiles = self.tiles
-		for _,tile in ipairs(tiles) do
-			tile:inform()
+		local parent = self.parent
+		if parent.node == self then
+			parent.node = nil
 		end
 
+		self:_destroy()
 	end,
 }

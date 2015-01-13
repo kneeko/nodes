@@ -33,6 +33,7 @@ Limiter = class{
 					local upper = threshold[2]
 					local target
 
+					-- clip value to limits
 					if value < lower then
 						target = lower
 					elseif value > upper then
@@ -124,17 +125,13 @@ Limiter = class{
 
 	shift = function(self, key, delta)
 
+		local delta = delta == delta and delta or 0
 		if delta then
-
 			local values = self.values
 			local value = values[key]
-
-			-- should a filter be set here?
-
 			if value then
 				return self:set(key, value, delta)
 			end
-			
 		end
 
 	end,

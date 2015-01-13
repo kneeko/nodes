@@ -71,8 +71,6 @@ Viewport = class{
 
 	update = function(self, dt)
 
-		
-
 		local limiter = self.limiter
 		limiter:update(dt)
 
@@ -105,6 +103,7 @@ Viewport = class{
 		local ox = w * 0.5
 		local oy = h * 0.5
 		local angle = self.angle
+
 		camera:set(x + ox, y + oy, z)
 		camera:rotate(angle)
 

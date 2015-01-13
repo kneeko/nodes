@@ -69,25 +69,23 @@ Camera = class{
 	end,
 
 	set = function(self, x, y, z, r, origin)
-		self.x = x or self.x
-		self.y = y or self.y
-		self.z = z or self.z
+		self.x = tonumber(x) or self.x
+		self.y = tonumber(y) or self.y
+		self.z = tonumber(z) or self.z
 	end,
 
 	zoom = function(self, z)
-		self.z = z
+		self.z = tonumber(z) or self.z
 	end,
 
 	rotate = function(self, r)
 		self.r = r or self.r
 	end,
 
-	configure = function(self)
-	end,
-
 	project = function(self, ix, iy)
 
-		-- todo make this handle rotation correctly
+		-- todo
+		-- handle rotation
 
 		local x, y, z = self.x, self.y, self.z
 		local w, h = self.w, self.h

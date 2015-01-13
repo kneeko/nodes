@@ -26,8 +26,6 @@ Route = class{
 		self.scale = {1, 1}
 
 		self.series = series
-		self.from = from
-		self.to = to
 
 		-- make the bound contain these objects
 
@@ -43,30 +41,17 @@ Route = class{
 
 	end,
 
-	draw = function(self, ...)
+	draw = function(self, identifier, ...)
 
 		-- this is a pretty bad way of doing this!
 		-- it would be cleaner to pass a token for retrieving this info manually
-		local position, _, _, _, _, identifier = ...
+		local position = ...
 
-		local from = self.from
-		local to = self.to
 
 		-- use the series instead...
 
 		-- i need to use the indentifier
 		-- i'll need to draw this some other way maybe?
-		local fx, fy = unpack(from.projections[identifier])
-		local tx, ty = unpack(to.projections[identifier])
-
-		lg.setLineWidth(3)
-		lg.setColor(0, 0, 0, 10)
-		lg.line(fx, fy + 2, tx, ty + 2)
-
-		lg.setColor(255, 80, 150)
-		lg.line(fx, fy, tx, ty)
-
-		lg.setLineWidth(1)
 	
 	end,
 

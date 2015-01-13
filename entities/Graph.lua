@@ -24,9 +24,9 @@ Graph = class{
 
 		-- parameters for the grid of triangles that will be made
 		-- step is the distance between each column, but not row
-		local step = 180
-		local rows = 5
-		local cols = 5
+		local step = 165
+		local rows = 7
+		local cols = 7
 		local convex = true
 
 		-- we only need to calculate these once
@@ -55,7 +55,7 @@ Graph = class{
 				local ny = y + (step * sin) * r
 
 				-- make the node
-				local node = Node(nx, ny)
+				local node = GraphNode(nx, ny)
 				node._graph = self
 				node.label = '(' .. r ..' , ' .. c ..')'
 
@@ -147,25 +147,7 @@ Graph = class{
 						table.insert(left.tiles, tile)
 						table.insert(right.tiles, tile)
 						table.insert(node.tiles, tile)
-
 						tiles[#tiles + 1] = tile
-
-						-- @temp randomly add units
-						if math.random() > 0.4 then
-
-							-- spawn a cat?
-
-							local cat = Cat()
-							cat.parent = tile
-							cat.positioning = 'relative'
-							cat.position[1] = 0
-							cat.position[2] = 0
-							cat._graph = self
-
-							tile.cat = cat
-
-						end
-
 					end
 				end	
 			end
@@ -184,88 +166,11 @@ Graph = class{
 					occurences[key] = occurences[key] and (occurences[key] + 1) or 1
 					if occurences[key] >= 2 and (not neighbors[key]) and (key ~= tile._key) then
 						neighbors[key] = neighbor
+						pool[#pool + 1] = neighbor
 					end
 				end
 			end
-
-			-- make routes between cats
-			for _,neighbor in pairs(neighbors) do
-				pool[#pool + 1] = neighbor
-
-				-- make a connection to neighboring cats
-				local cat = tile.cat
-				local friend = neighbor.cat
-				if cat and friend then
-
-					-- only create this route if one with the same series doesn't already exist
-					local series = {cat, friend}
-
-					-- collect all of the existing routes owned by members of the series
-					local existing = {}
-					for _,node in ipairs(series) do
-						local routes = node.routes or {}
-						for _,route in ipairs(routes) do
-							table.insert(existing, route)
-						end
-					end
-
-					-- only continue if none of those existing routes share the same series contents
-					-- regardless of order, mark as ineligible otherwise
-					local eligible = true
-					for j,route in ipairs(existing) do
-
-						-- each route has a series
-						-- we any of those series match this series's contents
-						-- we want to set unique to false
-						local checked = {}
-						for _,node in ipairs(route.series) do
-							for index,entry in ipairs(series) do
-								if entry == node then
-									checked[index] = true
-								end
-							end
-						end
-
-						-- if every single item in the series is true
-						-- in checked then eligible is false
-						local identical = true
-						for index,entry in ipairs(series) do
-							if not checked[index] then
-								identical = false
-							end
-						end
-
-						if identical and eligible then
-							eligible = false
-						end
-
-					end
-
-					-- this series has not yet been connected
-					-- so make a new route and add it to each member of the series
-
-					-- temp disable so that cats can manage their own routes
-					eligible = false
-
-					if eligible then
-						local route = Route(series)
-						for _,node in ipairs(series) do
-							local routes = node.routes or {}
-							table.insert(routes, route)
-							node.routes = routes
-						end
-					end
-
-				end
-			end
-
 			tile.neighbors = pool
-
-			-- temp connect cat nodes
-			if tile.cat then
-				tile.cat:connect(tile)
-			end
-
 		end
 
 		local status = ('Created a node graph with %s tiles, %s rows x %s cols.'):format(#tiles, rows, cols)
@@ -303,7 +208,7 @@ Graph = class{
 
 	end,
 
-	draw = function(self, ...)
+	draw = function(self, identifier, ...)
 		local position, angle, scale, origin, shear = ...
 		local x, y, z = unpack(position)
 		local sx, sy = unpack(scale)
@@ -326,6 +231,22 @@ Graph = class{
 		}
 
 		self.touches[id] = touch
+
+		if id == 'r' then
+
+			local tile = self:get_tile(identifier, x, y)
+			if tile then
+				if not tile.well then
+					local well = Well()
+					well.parent = tile
+					well._graph = self
+					tile.well = well
+					print('placed well')
+					return true
+				end
+			end
+
+		end
 
 	end,
 
@@ -388,9 +309,7 @@ Graph = class{
 		if from and to then
 			local route = astar.path(from, to)
 			if route then
-
 				return route
-
 			end
 			return
 		end
